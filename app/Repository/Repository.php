@@ -6,11 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 abstract class Repository
 {
-    /**
-     * @param class-string<Model> $model
-     */
-    public function __construct(protected string $model)
-    {
+    /* @var class-string<Model> $model */
+    abstract protected string $model {
+        get;
     }
 
     /**
@@ -28,9 +26,9 @@ abstract class Repository
      * @param int $externalId
      * @return int|null
      */
-    public function findIdByExternalId(int $externalId): ?int
+    public function getIdByExternalId(int $externalId): ?int
     {
-        return  $this->model::query()
+        return $this->model::query()
             ->where('external_id', $externalId)
             ->value('id');
     }
@@ -40,7 +38,7 @@ abstract class Repository
      * @param array $externalIds
      * @return array
      */
-    public function findIdsByExternalIds(array $externalIds): array
+    public function getIdsByExternalIds(array $externalIds): array
     {
         return $this->model::query()
             ->whereIn('external_id', $externalIds)

@@ -23,4 +23,5 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /docker/mysql/
-
+/docker/mysql/mysql.sock
+/app/Http/Controllers/TestController.php

@@ -5,7 +5,7 @@ namespace App\Jobs;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-use App\Services\ApiService;
+use App\Services\SwapiApiService;
 use App\Services\ImportSwapiService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -27,7 +27,7 @@ class ImportSwapiPage implements ShouldQueue
      * Execute the job.
      * @throws \Exception
      */
-    public function handle(ApiService $apiService, ImportSwapiService $importSwapiService): void
+    public function handle(SwapiApiService $apiService, ImportSwapiService $importSwapiService): void
     {
         if ($this->hasFailedHighPriorityJobs()) {
             logger()->warning('High-priority job failed. Pausing import until resolved.');

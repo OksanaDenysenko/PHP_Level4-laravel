@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Film extends Model
 {
-    protected $fillable=['id','external_id','title','episode_id','opening_crawl','director',
+    protected $fillable=['external_id','title','episode_id','opening_crawl','director',
         'producer','release_date','created','edited','url'];
 
     public function people(): BelongsToMany

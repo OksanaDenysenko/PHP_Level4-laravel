@@ -47,7 +47,7 @@ class ImportSwapiData extends Command
 
         if ($allJobsDispatched) {
             $this->info("All initial import jobs have been dispatched successfully.");
-            $this->info("Run 'php artisan queue:work --queue=1,2,3,4 --tries=3' to process them.");
+           // $this->info("Run 'php artisan queue:work --queue=1,2,3,4 --tries=3' to process them.");
 
             return CommandAlias::SUCCESS;
         } else {

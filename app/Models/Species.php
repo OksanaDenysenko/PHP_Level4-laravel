@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Species extends Model
 {
-    protected $fillable=['id','external_id','name','classification','designation','average_height',
+    protected $fillable=['external_id','name','classification','designation','average_height',
         'skin_colors','hair_colors','eye_colors','average_lifespan','language','created','edited',
         'url','planet_id'];
 

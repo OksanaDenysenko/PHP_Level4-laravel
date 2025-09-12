@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Starship extends Model
 {
-    protected $fillable=['id','external_id','name','model','manufacturer','cost_in_credits','length',
+    protected $fillable=['external_id','name','model','manufacturer','cost_in_credits','length',
         'max_atmosphering_speed', 'crew','passengers','cargo_capacity','consumables','hyperdrive_rating',
         'MGLT','starship_class','created','edited','url'];
 

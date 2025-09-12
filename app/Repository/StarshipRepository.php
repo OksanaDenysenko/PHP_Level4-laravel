@@ -6,8 +6,9 @@ use App\Models\Starship;
 
 class StarshipRepository extends Repository
 {
-    public function __construct()
-    {
-        parent::__construct(Starship::class);
+    protected string $model {
+        get {
+            return Starship::class;
+        }
     }
 }

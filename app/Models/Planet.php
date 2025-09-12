@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Planet extends Model
 {
-    protected $fillable=['id','external_id','name','rotation_period','orbital_period','diameter','climate'
+    protected $fillable=['external_id','name','rotation_period','orbital_period','diameter','climate'
         ,'gravity','terrain','surface_water','population','created','edited','url'];
 
     public function people(): HasMany
