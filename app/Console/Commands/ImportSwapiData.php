@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Jobs\ImportSwapiPage;
+use App\Services\SwapiApiService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Bus;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class ImportSwapiData extends Command
@@ -12,13 +14,15 @@ class ImportSwapiData extends Command
      * The name and signature of the console command.
      * @var string
      */
-    protected $signature = 'app:import-swapi-data';
+    protected $signature = 'app:import-swapi-data {--from-type= : Start importing from a specific data type }';
 
     /**
      * The console command description.
      * @var string
      */
     protected $description = 'Imports all data from https://swapi-api.hbtn.io/api/ into the database';
+
+    protected array $importOrder = ['vehicles', 'starships', 'planets', 'species', 'films', 'people'];
 
     public function __construct()
     {
@@ -27,31 +31,46 @@ class ImportSwapiData extends Command
 
     /**
      * Execute the console command.
+     * @throws \Exception
      */
-    public function handle(): int
+    public function handle(SwapiApiService $apiService): int
     {
         $this->info("Starting SWAPI data import process...");
-        $endpoints = config('swapi.endpoints');
-        $allJobsDispatched = true;
+        $startType = $this->option('from-type');
 
-        foreach ($endpoints as $item) {
-            try {
-                $this->info("Dispatching job for {$item['name']} ...");
-                ImportSwapiPage::dispatch($item['url'], $item['name'], $item['queue'])->onQueue($item['queue']);
+        try {
+            $endpoints = $apiService->getEndpoints();
+        } catch (\Exception $e) {
+            $this->error("Failed to get endpoints from API: " . $e->getMessage());
 
-            } catch (\Exception $e) {
-                $this->error("Failed to dispatch job for {$item['name']}: " . $e->getMessage());
-                $allJobsDispatched = false;
+            return CommandAlias::FAILURE;
+        }
+
+        $startIndex = $startType ? array_search($startType, $this->importOrder) : 0;
+
+        if ($startIndex === false) {
+            $this->error("Invalid data type provided: '{$startType}'.");
+
+            return CommandAlias::FAILURE;
+        }
+
+        $jobsToRun = array_slice($this->importOrder, $startIndex);
+        $jobs = [];
+
+        foreach ($jobsToRun as $dataType) {
+
+            if (isset($endpoints[$dataType])) {
+                $jobs[] = new ImportSwapiPage($endpoints[$dataType], $dataType);
             }
         }
 
-        if ($allJobsDispatched) {
-            $this->info("All initial import jobs have been dispatched successfully.");
-           // $this->info("Run 'php artisan queue:work --queue=1,2,3,4 --tries=3' to process them.");
+        if (count($jobs) > 0) {
+            Bus::chain($jobs)->dispatch();
+            $this->info("Import chain has been successfully dispatched.");
 
             return CommandAlias::SUCCESS;
         } else {
-            $this->error("Some jobs failed to dispatch. Check the logs for details.");
+            $this->error("No valid endpoints found for import.");
 
             return CommandAlias::FAILURE;
         }

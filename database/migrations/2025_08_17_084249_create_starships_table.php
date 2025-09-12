@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('manufacturer');
             $table->bigInteger('cost_in_credits')->unsigned()->nullable();
             $table->bigInteger('length')->unsigned()->nullable();
-            $table->string('max_atmosphering_speed');
+            $table->integer('max_atmosphering_speed')->unsigned()->nullable();
             $table->double('crew')->nullable();
             $table->double('passengers')->nullable();
             $table->bigInteger('cargo_capacity')->unsigned()->nullable();

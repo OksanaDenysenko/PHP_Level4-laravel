@@ -48,7 +48,7 @@ services:
   queue-worker1:
     container_name: queue-worker1
     build: ./docker/php
-    command: php artisan queue:work --queue=1,2,3,4 --tries=3
+    command: php artisan queue:work --tries=3
     volumes:
       - .:/var/www/html
     networks:
