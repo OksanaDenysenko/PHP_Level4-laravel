@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use App\Services\SwapiApiService;
 use App\Services\ImportSwapiService;
 use Illuminate\Contracts\Queue\ShouldQueue;

@@ -38,16 +38,8 @@ abstract class SwapiImporter
     final public function import(array $data): void
     {
         foreach ($data as $item) {
-            if (!isset($this->repositories[$this->dataType])) {
-
-                $this->repositories[$this->dataType] = $this->createRepository();
-            }
-
-            if (!$this->repositories[$this->dataType]) {
-                throw new \InvalidArgumentException("Unknown data type: '{$this->dataType}'");
-            }
-
-            $model = $this->repositories[$this->dataType]->create($this->preparedData($item));
+            $repository= $this->getRepository($this->dataType);
+            $model = $repository->create($this->preparedData($item));
 
             if ($model && !empty($this->relationsMap)) {
                 $this->syncRelationships($model, $item, $this->relationsMap);
@@ -56,13 +48,32 @@ abstract class SwapiImporter
     }
 
     /**
-     *  The method creates a repository object based on the data type
+     * The method returns the required repository for the corresponding data type
+     * @param string $dataType
+     * @return FilmRepository|PersonRepository|PlanetRepository|SpeciesRepository|StarshipRepository|VehicleRepository|mixed|null
+     */
+    protected function getRepository(string $dataType): mixed
+    {
+        if (!isset($this->repositories[$dataType])) {
+            $this->repositories[$dataType] = $this->createRepository($dataType);
+        }
 
+        if (!$this->repositories[$dataType]) {
+
+            throw new \InvalidArgumentException("Unknown data type: '{$dataType}'");
+        }
+
+        return $this->repositories[$dataType];
+    }
+
+    /**
+     *  The method creates a repository object based on the data type
+     * @param string $dataType
      * @return FilmRepository|PersonRepository|PlanetRepository|SpeciesRepository|StarshipRepository|VehicleRepository|null
      */
-    protected function createRepository(): FilmRepository|PlanetRepository|SpeciesRepository|StarshipRepository|VehicleRepository|PersonRepository|null
+    protected function createRepository(string $dataType): FilmRepository|PlanetRepository|SpeciesRepository|StarshipRepository|VehicleRepository|PersonRepository|null
     {
-        return match ($this->dataType) {
+        return match ($dataType) {
             'films' => new FilmRepository(),
             'people' => new PersonRepository(),
             'planets' => new PlanetRepository(),
@@ -111,29 +122,27 @@ abstract class SwapiImporter
 
             if (isset($item[$relationName]) && is_array($item[$relationName])) {
                 $externalIds = collect($item[$relationName])->map(fn($url) => basename(rtrim($url, '/')))->all();
-                $relatedRepository = $this->repositories[$relationName];
+                $relatedRepository = $this->getRepository($relationName);
                 $localIds = $relatedRepository->getIdsByExternalIds($externalIds);
-                $model->{$relationName}()->sync($localIds);
+                $filteredLocalIds = array_filter($localIds);
+                $model->{$relationName}()->sync($filteredLocalIds);
             }
         }
     }
 
     /**
      * The method looks up the local ID in the database by the ID from the URL
-     * @param string $url
+     * @param string|null $url
      * @param string $dataType
      * @return int|null
      */
-    protected function getOneToManyRelationId(string $url, string $dataType): ?int
+    protected function getOneToManyRelationId(?string $url, string $dataType): ?int
     {
         if (!empty($url)) {
             $externalId = basename(rtrim($url, '/'));
+            $relatedRepository = $this->getRepository($dataType);
 
-            if (!isset($this->repositories[$dataType])) {
-                $this->repositories[$dataType] = $this->createRepository();
-            }
-
-            return $this->repositories[$dataType]->getIdByExternalId($externalId);
+            return $relatedRepository->getIdByExternalId($externalId);
         }
 
         return null;

@@ -20,7 +20,8 @@ class PersonImporter extends SwapiImporter
             'birth_year' => $item['birth_year'],
             'gender' => $item['gender'],
             'planet_id' => $this->getOneToManyRelationId($item['homeworld'],'planets'),
-            'species_id' => $this->getOneToManyRelationId($item['species'][0],'species'),
+            'species_id' => $this->getOneToManyRelationId(
+                !empty($item['species']) ? $item['species'][0] : null,'species'),
         ];
 
         return $preparedData;
