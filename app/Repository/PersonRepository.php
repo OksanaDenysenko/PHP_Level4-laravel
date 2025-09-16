@@ -6,9 +6,5 @@ use App\Models\Person;
 
 class PersonRepository extends Repository
 {
-    protected string $model {
-        get {
-            return Person::class;
-        }
-    }
+    protected string $model = Person::class;
 }

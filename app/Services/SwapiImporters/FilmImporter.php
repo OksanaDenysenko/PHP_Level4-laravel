@@ -13,7 +13,7 @@ class FilmImporter extends SwapiImporter
         $preparedData = $this->prepareBaseData($item);
         $preparedData += [
             'title' => $item['title'],
-            'episode_id' => $this->isNumeric($item['episode_id']),
+            'episode_id' => $this->getNumericOrNull($item['episode_id']),
             'opening_crawl' => $item['opening_crawl'],
             'director' => $item['director'],
             'producer' => $item['producer'],

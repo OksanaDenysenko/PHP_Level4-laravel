@@ -6,9 +6,5 @@ use App\Models\Starship;
 
 class StarshipRepository extends Repository
 {
-    protected string $model {
-        get {
-            return Starship::class;
-        }
-    }
+    protected string $model = Starship::class;
 }

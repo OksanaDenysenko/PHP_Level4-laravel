@@ -14,11 +14,11 @@ class SpeciesImporter extends SwapiImporter
             'name' => $item['name'],
             'classification' => $item['classification'],
             'designation' => $item['designation'],
-            'average_height' => $this->isNumeric($item['average_height']),
+            'average_height' => $this->getNumericOrNull($item['average_height']),
             'skin_colors' => $item['skin_colors'],
             'hair_colors' => $item['hair_colors'],
             'eye_colors' => $item['eye_colors'],
-            'average_lifespan' => $this->isNumeric($item['average_lifespan']),
+            'average_lifespan' => $this->getNumericOrNull($item['average_lifespan']),
             'language' => $item['language'],
             'planet_id' => $this->getOneToManyRelationId($item['homeworld'], 'planets'),
         ];

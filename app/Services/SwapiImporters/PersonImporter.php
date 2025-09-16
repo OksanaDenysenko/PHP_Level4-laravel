@@ -12,8 +12,8 @@ class PersonImporter extends SwapiImporter
         $preparedData = $this->prepareBaseData($item);
         $preparedData += [
             'name' => $item['name'],
-            'height' => $this->isNumeric($item['height']),
-            'mass' => $this->isNumeric($item['mass']),
+            'height' => $this->getNumericOrNull($item['height']),
+            'mass' => $this->getNumericOrNull($item['mass']),
             'hair_color' => $item['hair_color'],
             'skin_color' => $item['skin_color'],
             'eye_color' => $item['eye_color'],

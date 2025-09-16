@@ -6,9 +6,5 @@ use App\Models\Species;
 
 class SpeciesRepository extends Repository
 {
-    protected string $model {
-        get {
-            return Species::class;
-        }
-    }
+    protected string $model = Species::class;
 }

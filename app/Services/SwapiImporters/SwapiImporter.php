@@ -104,7 +104,7 @@ abstract class SwapiImporter
      * @param $value
      * @return float|int|null
      */
-    protected function isNumeric($value): float|int|null
+    protected function getNumericOrNull($value): float|int|null
     {
         return is_numeric($value) ? $value : null;
     }
