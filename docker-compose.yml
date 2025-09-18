@@ -21,6 +21,8 @@ services:
     build: .\docker\php
     volumes:
       - .:/var/www/html
+    ports:
+        - "5173:5173"
     networks:
       - network1
     depends_on:
