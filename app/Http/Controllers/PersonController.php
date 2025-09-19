@@ -5,15 +5,21 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePersonRequest;
 use App\Http\Requests\UpdatePersonRequest;
 use App\Models\Person;
+use Illuminate\Http\Request;
 
 class PersonController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $people = Person::latest()->paginate(10);
+        $people = Person::with(['planet', 'species', 'films', 'vehicles', 'starships'])
+            ->latest('created_at')->paginate(10);
+
+        if ($request->ajax()) {
+            return response()->json($people);
+        }
 
         return view('people', compact('people'));
     }

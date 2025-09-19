@@ -9,7 +9,6 @@
     <people-page></people-page>
 </div>
 <script>
-    // Створюємо глобальну змінну, доступну для Vue
     window.initialPeople = @json($people);
 </script>
 </body>

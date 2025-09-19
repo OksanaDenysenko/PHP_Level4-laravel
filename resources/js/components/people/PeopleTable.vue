@@ -16,7 +16,6 @@
                 <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-400">Species</th>
                 <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-400">Vehicles</th>
                 <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-400">Starships</th>
-                <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -30,26 +29,29 @@
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">{{ person.birth_year }}</td>
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">{{ person.gender }}</td>
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">
-                    <span v-if="person.homeworld" class="text-blue-500 hover:underline">{{ person.homeworld }}</span>
+                    {{ person.planet ? person.planet.name : 'unknown' }}
                 </td>
+
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">
-                    <ul class="list-disc list-inside">
-                        <li v-for="film in person.films" :key="film" class="text-blue-500 hover:underline">
-                            {{ film.split('/').slice(-2, -1)[0] }}
-                        </li>
+                    <ul v-if="person.films && person.films.length">
+                        <li v-for="film in person.films" :key="film.id">{{ film.title }}</li>
                     </ul>
                 </td>
+
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">
-                    <span v-if="person.species.length">...</span>
+                    {{ person.species ? person.species.name : 'unknown' }}
                 </td>
+
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">
-                    <span v-if="person.vehicles.length">...</span>
+                    <ul v-if="person.vehicles && person.vehicles.length">
+                        <li v-for="vehicle in person.vehicles" :key="vehicle.id">{{ vehicle.name }}</li>
+                    </ul>
                 </td>
+
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">
-                    <span v-if="person.starships.length">...</span>
-                </td>
-                <td class="px-2 py-4 text-sm font-medium border-r border-gray-400 break-words">
-                    <a href="#" class="text-indigo-600 hover:text-indigo-900">Редагувати</a>
+                    <ul v-if="person.starships && person.starships.length">
+                        <li v-for="starship in person.starships" :key="starship.id">{{ starship.name }}</li>
+                    </ul>
                 </td>
             </tr>
             </tbody>

@@ -1,6 +1,6 @@
 import './bootstrap';
 import { createApp } from 'vue';
-import PeoplePage from "./components/pages/PeoplePage.vue";
+import PeoplePage from "./components/people/PeoplePage.vue";
 
 const app = createApp({});
 
