@@ -1,5 +1,8 @@
 FROM php:8.4-fpm
 
+ARG UID=1000
+ARG GID=1000
+
 RUN apt-get update && apt-get install -y \
         git curl libzip-dev zip \
         && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -20,5 +23,3 @@ RUN set -eux; \
     chown -R www-data:www-data /var/www
 
 USER www-data
-
-EXPOSE 9000
