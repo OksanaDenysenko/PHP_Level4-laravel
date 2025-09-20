@@ -6,8 +6,5 @@ use App\Models\Film;
 
 class FilmRepository extends Repository
 {
-    public function __construct()
-    {
-        parent::__construct(Film::class);
-    }
+    protected string $model =Film::class;
 }

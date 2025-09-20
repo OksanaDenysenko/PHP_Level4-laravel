@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Person extends Model
 {
-    protected $fillable=['id','external_id','name','height','mass','hair_color','skin_color','eye_color',
+    protected $fillable=['external_id','name','height','mass','hair_color','skin_color','eye_color',
         'birth_year','gender','created','edited','url', 'planet_id', 'species_id'];
 
 

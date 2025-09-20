@@ -6,8 +6,5 @@ use App\Models\Person;
 
 class PersonRepository extends Repository
 {
-    public function __construct()
-    {
-        parent::__construct(Person::class);
-    }
+    protected string $model = Person::class;
 }

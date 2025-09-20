@@ -13,7 +13,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-RUN chown -R www-data:www-data /var/www/html
+RUN set -eux; \
+    deluser www-data || true; \
+    groupadd -g ${GID} www-data; \
+    useradd -u ${UID} -g www-data www-data; \
+    chown -R www-data:www-data /var/www
 
 USER www-data
 

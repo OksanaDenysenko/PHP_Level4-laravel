@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Vehicle extends Model
 {
-    protected $fillable=['id','external_id','name','model','manufacturer','cost_in_credits','length',
+    protected $fillable=['external_id','name','model','manufacturer','cost_in_credits','length',
         'max_atmosphering_speed', 'crew','passengers','cargo_capacity','consumables','vehicle_class',
         'created','edited','url'];
 

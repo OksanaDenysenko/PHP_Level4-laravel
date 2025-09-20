@@ -28,9 +28,7 @@
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">{{ person.eye_color }}</td>
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">{{ person.birth_year }}</td>
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">{{ person.gender }}</td>
-                <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">
-                    {{ person.planet ? person.planet.name : 'unknown' }}
-                </td>
+                <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">{{ person.planet?.name}}</td>
 
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">
                     <ul v-if="person.films && person.films.length">
@@ -38,9 +36,7 @@
                     </ul>
                 </td>
 
-                <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">
-                    {{ person.species ? person.species.name : 'unknown' }}
-                </td>
+                <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">{{ person.species ?.name }} </td>
 
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">
                     <ul v-if="person.vehicles && person.vehicles.length">

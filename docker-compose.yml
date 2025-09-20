@@ -47,3 +47,14 @@ services:
       - network1
     depends_on:
       - mysql1
+  queue-worker1:
+    container_name: queue-worker1
+    build: ./docker/php
+    command: php artisan queue:work
+    volumes:
+      - .:/var/www/html
+    networks:
+      - network1
+    depends_on:
+      - php1
+      - mysql1
