@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\SwapiDataType;
 use App\Jobs\ImportSwapiPage;
 use App\Services\SwapiApiService;
 use Illuminate\Console\Command;
@@ -60,7 +61,7 @@ class ImportSwapiData extends Command
         foreach ($jobsToRun as $dataType) {
 
             if (isset($endpoints[$dataType])) {
-                $jobs[] = new ImportSwapiPage($endpoints[$dataType], $dataType);
+                $jobs[] = new ImportSwapiPage($endpoints[$dataType], SwapiDataType::from($dataType));
             }
         }
 

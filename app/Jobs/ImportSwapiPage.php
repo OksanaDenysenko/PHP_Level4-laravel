@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\SwapiDataType;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Services\SwapiApiService;
@@ -17,7 +18,7 @@ class ImportSwapiPage implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(protected string $url,
-                                protected string $dataType)
+                                protected SwapiDataType $dataType)
     {
     }
 
@@ -41,17 +42,4 @@ class ImportSwapiPage implements ShouldQueue
             ImportSwapiPage::dispatch($data['next'], $this->dataType);
         }
     }
-
-//    /**
-//     * The method checks if there are any failed jobs with higher priority in the database
-//     * @return bool
-//     */
-//    private function hasFailedHighPriorityJobs(): bool
-//    {
-//        $highPriority = ((int)$this->queueName) - 1;
-//
-//        return DB::table('failed_jobs')
-//            ->where('queue', $highPriority)
-//            ->exists();
-//    }
 }
