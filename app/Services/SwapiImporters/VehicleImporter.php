@@ -2,10 +2,12 @@
 
 namespace App\Services\SwapiImporters;
 
+use App\Enums\SwapiDataType;
+
 class VehicleImporter extends SwapiImporter
 {
     protected array $relationsMap=[];
-    protected string $dataType = 'vehicles';
+    protected SwapiDataType $dataType = SwapiDataType::Vehicles;
 
     protected function preparedData(array $item): array
     {

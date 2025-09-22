@@ -2,11 +2,13 @@
 
 namespace App\Services\SwapiImporters;
 
+use App\Enums\SwapiDataType;
+
 class FilmImporter extends SwapiImporter
 {
     protected array $relationsMap = ['species', 'vehicles', 'starships', 'planets'];
 
-    protected string $dataType = 'films';
+    protected SwapiDataType $dataType = SwapiDataType::Films;
 
     protected function preparedData(array $item): array
     {
