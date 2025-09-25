@@ -2,10 +2,12 @@
 
 namespace App\Services\SwapiImporters;
 
+use App\Enums\SwapiDataType;
+
 class PlanetImporter extends SwapiImporter
 {
     protected array $relationsMap=[];
-    protected string $dataType = 'planets';
+    protected SwapiDataType $dataType = SwapiDataType::Planets;
 
     protected function preparedData(array $item): array
     {

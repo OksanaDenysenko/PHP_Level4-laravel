@@ -2,10 +2,12 @@
 
 namespace App\Services\SwapiImporters;
 
+use App\Enums\SwapiDataType;
+
 class SpeciesImporter extends SwapiImporter
 {
     protected array $relationsMap=[];
-    protected string $dataType = 'species';
+    protected SwapiDataType $dataType = SwapiDataType::Species;
 
     protected function preparedData(array $item): array
     {
@@ -20,7 +22,7 @@ class SpeciesImporter extends SwapiImporter
             'eye_colors' => $item['eye_colors'],
             'average_lifespan' => $this->getNumericOrNull($item['average_lifespan']),
             'language' => $item['language'],
-            'planet_id' => $this->getOneToManyRelationId($item['homeworld'], 'planets'),
+            'planet_id' => $this->getOneToManyRelationId($item['homeworld'], SwapiDataType::Planets),
         ];
 
         return $preparedData;

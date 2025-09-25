@@ -2,13 +2,8 @@
 
 namespace App\Enums;
 
-use App\Services\SwapiImporters\FilmImporter;
-use App\Services\SwapiImporters\PersonImporter;
-use App\Services\SwapiImporters\PlanetImporter;
-use App\Services\SwapiImporters\SpeciesImporter;
-use App\Services\SwapiImporters\StarshipImporter;
-use App\Services\SwapiImporters\SwapiImporter;
-use App\Services\SwapiImporters\VehicleImporter;
+use App\Repository\{Repository,FilmRepository,PersonRepository,PlanetRepository,SpeciesRepository,StarshipRepository,VehicleRepository};
+use App\Services\SwapiImporters\{SwapiImporter,VehicleImporter,StarshipImporter,SpeciesImporter,PlanetImporter,PersonImporter,FilmImporter};
 
 enum SwapiDataType: string
 {
@@ -33,6 +28,22 @@ enum SwapiDataType: string
             self::Species => new SpeciesImporter(),
             self::Starships => new StarshipImporter(),
             self::Vehicles => new VehicleImporter(),
+        };
+    }
+
+    /**
+     * This method returns the corresponding repository object
+     * @return Repository
+     */
+    public function getRepository(): Repository
+    {
+        return match ($this) {
+            self::Films => new FilmRepository(),
+            self::People => new PersonRepository(),
+            self::Planets => new PlanetRepository(),
+            self::Species => new SpeciesRepository(),
+            self::Starships => new StarshipRepository(),
+            self::Vehicles => new VehicleRepository(),
         };
     }
 }
