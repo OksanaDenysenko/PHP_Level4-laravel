@@ -8,8 +8,8 @@
 <div id="app">
     <people-page></people-page>
 </div>
-<script>
+{{--<script>
     window.initialPeople = @json($people);
-</script>
+</script>--}}
 </body>
 </html>
