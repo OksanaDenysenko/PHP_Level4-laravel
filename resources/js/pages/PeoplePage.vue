@@ -1,6 +1,25 @@
 <template>
     <div class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-4">Список персонажів Star Wars</h1>
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold mb-4">Список персонажів Star Wars</h1>
+
+            <button
+                @click="showForm = true"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition duration-150 ease-in-out"
+            >
+                Додати Персонажа
+            </button>
+        </div>
+
+        <Modal :show="showForm" @close="showForm = false">
+            <div class="p-6 bg-white rounded-lg">
+                <h2 class="text-2xl font-semibold mb-4">Новий Персонаж</h2>
+                <PersonForm
+                    @cancel="showForm = false"
+                    @person-created="handlePersonAdded"
+                />
+            </div>
+        </Modal>
 
         <div v-if="isLoading" class="text-center py-8">
             <p>Завантаження даних...</p>
@@ -27,9 +46,12 @@ import {ref, onMounted} from 'vue';
 import {getPeopleApi} from '../api/people';
 import PeopleTable from '../components/people/PeopleTable.vue';
 import Pagination from "../components/Pagination.vue";
+import PersonForm from "../components/people/PersonForm.vue";
+import Modal from "../components/Modal.vue";
 
 const people = ref({});
 const isLoading = ref(true);
+const showForm = ref(false);
 const fetchPeople = async (page = 1) => {
     if (!page) return;
 
@@ -49,6 +71,18 @@ const fetchPeople = async (page = 1) => {
         isLoading.value = false;
     }
 };
+
+const handlePersonAdded = (newPerson) => {
+    showForm.value = false;
+
+    if (people.value.data) {
+        people.value.data.unshift(newPerson);
+    }
+
+    if (people.value.total) {
+        people.value.total += 1;
+    }
+}
 
 onMounted(() => {
     const urlParams = new URLSearchParams(window.location.search);

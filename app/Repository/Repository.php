@@ -45,4 +45,14 @@ abstract class Repository
             ->pluck('id')
             ->toArray();
     }
+
+    /**
+     * Method for getting a subset of columns
+     * @param array $columns
+     * @return mixed
+     */
+    public function getColumns(array $columns=['*']): mixed
+    {
+        return $this->model::select($columns)->get();
+    }
 }

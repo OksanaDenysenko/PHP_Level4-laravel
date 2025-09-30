@@ -37,7 +37,13 @@ class PersonController extends Controller
      */
     public function store(StorePersonRequest $request)
     {
-        //
+        dump($request);
+        dump($request->all());
+        // Передаємо валідовані дані до сервісу
+//        $person = $this->personService->createPerson($request->validated());
+//
+//        // Повертаємо успішну відповідь
+//        return response()->json($person, 201); // 201 Created
     }
 
     /**
