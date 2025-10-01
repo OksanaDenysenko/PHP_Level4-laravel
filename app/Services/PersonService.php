@@ -34,14 +34,22 @@ class PersonService
      */
     public function getDataForCreationForm(): array
     {
-        $lookups=['planets','species', 'films', 'vehicles', 'starships'];
+        $lookups = [
+            'planets' => 'name',
+            'species' => 'name',
+            'films' => 'title',
+            'vehicles' => 'name',
+            'starships' => 'name',
+        ];
         $options=[];
 
-        foreach ($lookups as $dataType){
+        foreach ($lookups as $dataType => $nameColumn){
             $dataTypeObject = SwapiDataType::from($dataType);
             $repository = $dataTypeObject->getRepository();
-            $options[$dataType]=$repository->getColumns(['id', 'name']);
+            $options[$dataType]=$repository->getColumns(['id', $nameColumn]);
         }
+
+        $options['genders'] = ['male', 'female', 'n/a', 'hermaphrodite'];
 
         return $options;
     }

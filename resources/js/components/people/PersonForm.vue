@@ -1,29 +1,54 @@
 <script setup lang="ts">
-import {ref} from 'vue';
+import {ref, onMounted} from 'vue';
 import axios from 'axios'; // Будемо використовувати axios тут
 
 // Оголошуємо події, які компонент може випромінювати
 const emit = defineEmits(['cancel', 'person-created']);
 
+const formOptions=ref({
+    planets:[],
+    species:[],
+    films:[],
+    vehicles:[],
+    starships:[],
+    genders:[],
+});
+const isLoadingOptions=ref(true);
+
 const newPerson = ref({
     name: '',
-    height: '',
-    mass: '',
+    height: null,
+    mass: null,
     hair_color: '',
     skin_color: '',
     eye_color: '',
     birth_year: '',
     gender: '',
-    homeworld: '',
-    films: [],
-    species: '',
-    vehicles: '',
-    starships: '',
-    created: '',
-    edited: '',
-    url: ''
+    planet_id: null,
+    species_id: null,
+    film_ids: [],
+    vehicle_ids: [],
+    starship_ids: []
 });
 const isSaving = ref(false);
+const validationErrors=ref({});
+
+const fetchFormOptions=async ()=>{
+    isLoadingOptions.value=true;
+    try {
+        const response=await axios.get('/api/person-form-options');
+        formOptions.value=response.data;
+    }catch (error) {
+        console.error("Помилка завантаження опцій форми:", error);
+        //Can look messedge user
+    }finally {
+        isLoadingOptions.value=false;
+    }
+}
+
+onMounted(()=>{
+    fetchFormOptions();
+});
 
 const savePerson = async () => {
     isSaving.value = true;
@@ -37,21 +62,18 @@ const savePerson = async () => {
         // Скидаємо форму
         newPerson.value = {
             name: '',
-            height: '',
-            mass: '',
+            height: null,
+            mass: null,
             hair_color: '',
             skin_color: '',
             eye_color: '',
             birth_year: '',
             gender: '',
-            homeworld: '',
-            films: [],
-            species: '',
-            vehicles: '',
-            starships: '',
-            created: '',
-            edited: '',
-            url: '',
+            planet_id: null,
+            species_id: null,
+            film_ids: [],
+            vehicle_ids: [],
+            starship_ids: []
         };
 
     } catch (error) {
@@ -67,114 +89,114 @@ const savePerson = async () => {
     <form @submit.prevent="savePerson">
         <div class="max-h-96 overflow-y-auto pr-4 mb-4">
             <div class="mb-4">
-                <label for="name" class="block text-sm font-medium text-gray-700">Ім'я</label>
+                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
                 <input type="text" id="name" v-model="newPerson.name" required
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
             </div>
 
             <div class="mb-4">
-                <label for="height" class="block text-sm font-medium text-gray-700">Зріст (см)</label>
+                <label for="height" class="block text-sm font-medium text-gray-700">Height (см)</label>
                 <input type="number" id="height" v-model="newPerson.height"
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
             </div>
 
             <div class="mb-4">
-                <label for="mass" class="block text-sm font-medium text-gray-700">Вага (кг)</label>
+                <label for="mass" class="block text-sm font-medium text-gray-700">Mass (кг)</label>
                 <input type="number" id="mass" v-model="newPerson.mass"
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
             </div>
 
             <div class="mb-4">
-                <label for="hair_color" class="block text-sm font-medium text-gray-700">Колір волосся</label>
-                <input type="number" id="hair_color" v-model="newPerson.hair_color"
+                <label for="hair_color" class="block text-sm font-medium text-gray-700">Hair Color</label>
+                <input type="text" id="hair_color" v-model="newPerson.hair_color"
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
             </div>
 
             <div class="mb-4">
-                <label for="mass" class="block text-sm font-medium text-gray-700">Колір шкіри</label>
-                <input type="text" id="mass" v-model="newPerson.skin_color"
+                <label for="skin_color" class="block text-sm font-medium text-gray-700">Skin Color</label>
+                <input type="text" id="skin_color" v-model="newPerson.skin_color"
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
             </div>
 
             <div class="mb-4">
-                <label for="eye_color" class="block text-sm font-medium text-gray-700">Колір очей</label>
+                <label for="eye_color" class="block text-sm font-medium text-gray-700">Eye Color</label>
                 <input type="text" id="eye_color" v-model="newPerson.eye_color"
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
             </div>
 
             <div class="mb-4">
-                <label for="birth_year" class="block text-sm font-medium text-gray-700">Рік народження</label>
+                <label for="birth_year" class="block text-sm font-medium text-gray-700">Birth Year</label>
                 <input type="number" id="birth_year" v-model="newPerson.birth_year"
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
             </div>
 
             <div class="mb-4">
-                <label for="gender" class="block text-sm font-medium text-gray-700">Стать</label>
-                <select id="gender" v-model="newPerson.gender"
+                <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                <select id="gender" v-model="newPerson.gender" :disabled="isLoadingOptions"
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <option value="" disabled>Оберіть вид</option>
-                    <option value="Human">Human</option>
+                    <option value="" disabled>Оберіть стать</option>
+                    <option v-for="genderValue in formOptions.genders" :key="genderValue" :value="genderValue">
+                        {{genderValue}}</option>
                 </select>
             </div>
 
             <div class="mb-4">
-                <label for="homeworld" class="block text-sm font-medium text-gray-700">Планета</label>
-                <select id="homeworld" v-model="newPerson.homeworld"
+                <label for="homeworld" class="block text-sm font-medium text-gray-700">Homeworld</label>
+                <select id="homeworld" v-model="newPerson.planet_id" :disabled="isLoadingOptions"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
 
                     <option value="" disabled>Оберіть планету</option>
 
-                    <option value="Tatooine">Tatooine</option>
-                    <option value="Alderaan">Alderaan</option>
-                    <option value="Dagobah">Dagobah</option>
-
+                    <option v-for="planet in formOptions.planets" :key="planet.id" :value="planet.id">
+                    {{planet.name}}</option>
                 </select>
             </div>
 
             <div class="mb-4">
-                <label for="films" class="block text-sm font-medium text-gray-700">Фільми</label>
-                <select name="films" v-model="newPerson.films" multiple>
-                    <option value="ep4">Епізод IV: Нова надія</option>
-                    <option value="ep5">Епізод V: Імперія завдає удару у відповідь</option>
-                    <option value="ep6">Епізод VI: Повернення джедая</option>
+                <label for="species" class="block text-sm font-medium text-gray-700">Species</label>
+                <select id="species" v-model="newPerson.species_id" :disabled="isLoadingOptions"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+
+                    <option value="" disabled>Оберіть вид</option>
+
+                    <option v-for="species in formOptions.species" :key="species.id" :value="species.id">
+                        {{species.name}}</option>
                 </select>
             </div>
 
             <div class="mb-4">
-                <label for="species" class="block text-sm font-medium text-gray-700">Вид</label>
-                <input type="text" id="species" v-model="newPerson.species"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <label for="films" class="block text-sm font-medium text-gray-700">Films</label>
+                <select id="films" v-model="newPerson.film_ids" multiple :disabled="isLoadingOptions">
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+
+                    <option v-for="film in formOptions.films" :key="film.id" :value="film.id">
+                        {{ film.title }}
+                    </option>
+                </select>
             </div>
 
             <div class="mb-4">
-                <label for="vehicles" class="block text-sm font-medium text-gray-700">Транспортний засіб</label>
-                <input type="text" id="vehicles" v-model="newPerson.vehicles"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <label for="vehicles" class="block text-sm font-medium text-gray-700">Vehicles</label>
+                <select id="vehicles" v-model="newPerson.vehicle_ids" multiple :disabled="isLoadingOptions">
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+
+                    <option v-for="vehicle in formOptions.vehicles" :key="vehicle.id" :value="vehicle.id">
+                        {{ vehicle.name }}
+                    </option>
+                </select>
             </div>
 
             <div class="mb-4">
-                <label for="starships" class="block text-sm font-medium text-gray-700">Космічний корабель</label>
-                <input type="text" id="starships" v-model="newPerson.starships"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <label for="starships" class="block text-sm font-medium text-gray-700">Starships</label>
+                <select id="starships" v-model="newPerson.starship_ids" multiple :disabled="isLoadingOptions">
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+
+                    <option v-for="starship in formOptions.starships" :key="starship.id" :value="starship.id">
+                        {{ starship.name }}
+                    </option>
+                </select>
             </div>
 
-            <div class="mb-4">
-                <label for="created" class="block text-sm font-medium text-gray-700">Створено</label>
-                <input type="number" id="created" v-model="newPerson.created"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-
-            <div class="mb-4">
-                <label for="edited" class="block text-sm font-medium text-gray-700">Оновлено</label>
-                <input type="number" id="edited" v-model="newPerson.edited"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-
-            <div class="mb-4">
-                <label for="url" class="block text-sm font-medium text-gray-700">Url</label>
-                <input type="url" id="url" v-model="newPerson.url"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
         </div>
 
         <div class="flex justify-end space-x-4">

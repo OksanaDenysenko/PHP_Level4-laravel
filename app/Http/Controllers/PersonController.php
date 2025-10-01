@@ -37,6 +37,7 @@ class PersonController extends Controller
      */
     public function store(StorePersonRequest $request)
     {
+        dd("im here");
         dump($request);
         dump($request->all());
         // Передаємо валідовані дані до сервісу

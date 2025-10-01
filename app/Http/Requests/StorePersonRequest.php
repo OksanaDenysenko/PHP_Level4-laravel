@@ -22,6 +22,7 @@ class StorePersonRequest extends FormRequest
      */
     public function rules(): array
     {
+        dd($this->all());
         return [
             'name' => ['required', 'string', 'max:100', 'unique:people,name'],
             'height' => ['nullable', 'numeric', 'min:1'],
@@ -30,7 +31,7 @@ class StorePersonRequest extends FormRequest
             'skin_color'=>['nullable', 'string', 'max:50'],
             'eye_color'=>['nullable', 'string', 'max:50'],
             'birth_year'=>['nullable', 'string', 'max:50'],
-            'gender'=>['nullable', 'string', 'max:100', 'in:male,female,n/a,none,hermaphrodite'],
+            'gender'=>['nullable', 'string', 'max:100', 'in:male,female,n/a,hermaphrodite'],
             'homeworld'=>[],
             'films'=>[],
             'species'=>[],
