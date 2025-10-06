@@ -13,10 +13,10 @@ class PersonRepository extends Repository
      *
      * The method gets a paginated list of characters with all bindings sorted by creation date.
      */
-    public function getPaginatedPeopleWithRelations(): LengthAwarePaginator
+    public function getPaginatedPeopleWithRelations($perPage): LengthAwarePaginator
     {
         return Person::with(['planet', 'species', 'films', 'vehicles', 'starships'])
             ->latest('created_at')
-            ->paginate(10);
+            ->paginate($perPage);
     }
 }

@@ -7,10 +7,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::prefix('people')->name('people.')->group(function () {
-    Route::get('/', [PersonController::class, 'index'])->name('index');
-    Route::get('/create', [PersonController::class, 'create'])->name('create');
-    Route::post('/', [PersonController::class, 'store'])->name('store');
-    Route::put('/{person}', [PersonController::class, 'update'])->name('update');
-    Route::delete('/{person}', [PersonController::class, 'destroy'])->name('destroy');
+Route::prefix('people')
+    ->name('people.')
+    ->controller(PersonController::class)
+    ->group(function () {
+    Route::get('/',  'index')->name('index');
+    Route::get('/create',  'create')->name('create');
+    Route::post('/',  'store')->name('store');
+    Route::put('/{person}',  'update')->name('update');
+    Route::delete('/{person}', 'destroy')->name('destroy');
 });

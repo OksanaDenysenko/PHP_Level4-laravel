@@ -14,8 +14,8 @@ class PersonService
     /**
      * The method gets a paginated list of characters to display on the page.
      */
-    public function getPaginatedPeople(): LengthAwarePaginator
+    public function getPaginatedPeople($perPage): LengthAwarePaginator
     {
-        return $this->personRepository->getPaginatedPeopleWithRelations();
+        return $this->personRepository->getPaginatedPeopleWithRelations($perPage);
     }
 }
