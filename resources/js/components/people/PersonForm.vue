@@ -32,6 +32,7 @@ const newPerson = ref({
 });
 const isSaving = ref(false);
 const validationErrors=ref({});
+const successMessage = ref('');
 
 const fetchFormOptions=async ()=>{
     isLoadingOptions.value=true;
@@ -50,12 +51,19 @@ onMounted(()=>{
     fetchFormOptions();
 });
 
+const generalError = ref('');
 const savePerson = async () => {
     isSaving.value = true;
+    validationErrors.value = {};
+    generalError.value = '';
+    successMessage.value = '';
     try {
         // Виконання POST-запиту до маршруту Laravel store
         await axios.post('/people', newPerson.value);
-
+        successMessage.value = 'Персонаж успішно створений!';
+        setTimeout(() => {
+            successMessage.value = '';
+        }, 3000);
         // Успіх: повідомляємо батьківському компоненту
         emit('person-created');
 
@@ -78,7 +86,23 @@ const savePerson = async () => {
 
     } catch (error) {
         console.error("Помилка при збереженні персонажа:", error);
-        // Тут можна додати логіку відображення помилок валідації
+        if (error.response && error.response.status === 422) {
+            // Laravel повертає об'єкт з помилками у error.response.data.errors
+            validationErrors.value = error.response.data.errors;
+        } else {
+            let errorMessage = 'Виникла невідома помилка при збереженні. Спробуйте пізніше.';
+
+            // Якщо є відповідь сервера, використовуємо її статус або повідомлення
+            if (error.response) {
+                errorMessage = `Помилка сервера: ${error.response.status}. `
+                    + (error.response.data.message || 'Внутрішня помилка сервера.');
+            } else if (error.message) {
+                // Це можуть бути мережеві помилки (наприклад, сервер недоступний)
+                errorMessage = `Помилка мережі: ${error.message}. Перевірте з'єднання.`;
+            }
+
+            generalError.value = errorMessage;
+        }
     } finally {
         isSaving.value = false;
     }
@@ -87,11 +111,31 @@ const savePerson = async () => {
 
 <template>
     <form @submit.prevent="savePerson">
+        <div v-if="successMessage"
+             class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Успіх!</strong> {{ successMessage }}
+        </div>
+        <div v-else-if="generalError"
+             class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Помилка!</strong> {{ generalError }}
+        </div>
+        <div v-else-if="Object.keys(validationErrors).length"
+             class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Упс! Виправте наступні помилки:</strong>
+            <ul class="mt-2 list-disc list-inside">
+                <li v-for="(value, key) in validationErrors" :key="key">
+                    {{ value[0] }}
+                </li>
+            </ul>
+        </div>
         <div class="max-h-96 overflow-y-auto pr-4 mb-4">
             <div class="mb-4">
                 <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
                 <input type="text" id="name" v-model="newPerson.name" required
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <div v-if="validationErrors.name" class="text-sm text-red-600 mt-1">
+                    {{ validationErrors.name[0] }}
+                </div>
             </div>
 
             <div class="mb-4">
@@ -126,7 +170,7 @@ const savePerson = async () => {
 
             <div class="mb-4">
                 <label for="birth_year" class="block text-sm font-medium text-gray-700">Birth Year</label>
-                <input type="number" id="birth_year" v-model="newPerson.birth_year"
+                <input type="text" id="birth_year" v-model="newPerson.birth_year"
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
             </div>
 

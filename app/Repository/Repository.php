@@ -55,4 +55,20 @@ abstract class Repository
     {
         return $this->model::select($columns)->get();
     }
+
+    /**
+     *The method adds many-to-many relationships for a specific model object
+     * @param Model $model
+     * @param array $relationshipsData
+     * @return void
+     */
+    public function syncRelationships(Model $model, array $relationshipsData): void
+    {
+        foreach ($relationshipsData as $relationName => $idsArray){
+
+            if (!empty($idsArray)){
+                $model->{$relationName}()->sync($idsArray);
+            }
+        }
+    }
 }

@@ -4,10 +4,16 @@ namespace App\Services;
 
 use App\Enums\SwapiDataType;
 use App\Repository\PersonRepository;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class PersonService
 {
+    protected array $relationshipKeys = [
+        'film_ids'=>'films',
+        'vehicle_ids'=>'vehicles',
+        'starship_ids'=>'starships'];
+
     public function __construct(protected PersonRepository $personRepository)
     {
     }
@@ -20,12 +26,34 @@ class PersonService
         return $this->personRepository->getPaginatedPeopleWithRelations();
     }
 
-    public function createPerson(array $data)
+    /**
+     * The method creates a new character with all its relations
+     * @param array $data
+     * @return Model|null
+     */
+    public function createPerson(array $data): ?Model
     {
+        $personData = array_diff_key($data, $this->relationshipKeys);
+        $person = $this->personRepository->create($personData);
 
+        if ($person) {
+            $rawRelationshipsData = array_intersect_key($data, $this->relationshipKeys);
+            $relationshipsData=[];
 
-       // return $this->personRepository->create($data);
+            foreach ($rawRelationshipsData as $oldKey => $value) {
 
+                if (isset($this->relationshipKeys[$oldKey])) {
+                    $newKey = $this->relationshipKeys[$oldKey];
+                    $relationshipsData[$newKey] = $value;
+                }
+            }
+
+            if(!empty($relationshipsData)){
+            $this->personRepository->syncRelationships($person, $relationshipsData);
+            }
+        }
+
+        return $person;
     }
 
     /**
@@ -41,12 +69,12 @@ class PersonService
             'vehicles' => 'name',
             'starships' => 'name',
         ];
-        $options=[];
+        $options = [];
 
-        foreach ($lookups as $dataType => $nameColumn){
+        foreach ($lookups as $dataType => $nameColumn) {
             $dataTypeObject = SwapiDataType::from($dataType);
             $repository = $dataTypeObject->getRepository();
-            $options[$dataType]=$repository->getColumns(['id', $nameColumn]);
+            $options[$dataType] = $repository->getColumns(['id', $nameColumn]);
         }
 
         $options['genders'] = ['male', 'female', 'n/a', 'hermaphrodite'];

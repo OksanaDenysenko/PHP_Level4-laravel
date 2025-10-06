@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PersonController extends Controller
 {
@@ -35,16 +36,11 @@ class PersonController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePersonRequest $request)
+    public function store(StorePersonRequest $request): JsonResponse
     {
-        dd("im here");
-        dump($request);
-        dump($request->all());
-        // Передаємо валідовані дані до сервісу
-//        $person = $this->personService->createPerson($request->validated());
-//
-//        // Повертаємо успішну відповідь
-//        return response()->json($person, 201); // 201 Created
+        $person = $this->personService->createPerson($request->validated());
+
+        return response()->json($person, 201);
     }
 
     /**
