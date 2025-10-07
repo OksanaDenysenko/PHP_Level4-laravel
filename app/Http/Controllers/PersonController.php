@@ -23,7 +23,7 @@ class PersonController extends Controller
      */
     public function index(Request $request): Factory|View|JsonResponse
     {
-        $people = $this->personService->getPaginatedPeople();
+        $people = $this->personService->getPaginatedPeople($request);
 
         if ($request->ajax()) {
 
