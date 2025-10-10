@@ -16,7 +16,7 @@ const updateValue = (event: Event) => {
     const target = event.target as HTMLSelectElement;
     const selectedOptions: number[] = Array.from(target.options)
         .filter(option => option.selected)
-        .map(option => parseInt(option.value)); // Конвертуємо в число
+        .map(option => parseInt(option.value));
 
     emit('update:modelValue', selectedOptions);
 };
