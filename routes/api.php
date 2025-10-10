@@ -8,4 +8,12 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('/person-form-options', [PersonController::class, 'getFormOptions']);
+Route::prefix('people')
+    ->name('people.')
+    ->controller(PersonController::class)
+    ->group(function () {
+        Route::get('/person-form-options', 'getFormOptions')->name('getFormOptions');
+        Route::post('/',  'store')->name('store');
+        Route::put('/{person}',  'update')->name('update');
+        Route::delete('/{person}', 'destroy')->name('destroy');
+    });

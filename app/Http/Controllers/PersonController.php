@@ -34,35 +34,9 @@ class PersonController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePersonRequest $request): JsonResponse
-    {
-        $person = $this->personService->createPerson($request->validated());
-
-        return response()->json($person, 201);
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(Person $person)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePersonRequest $request, Person $person)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Person $person)
     {
         //
     }

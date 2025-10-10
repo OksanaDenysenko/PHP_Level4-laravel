@@ -1,21 +1,14 @@
 <script setup lang="ts">
-import {ref, onMounted} from 'vue';
-import axios from 'axios'; // Будемо використовувати axios тут
 
-// Оголошуємо події, які компонент може випромінювати
+import {ref, onMounted} from 'vue';
+import FormInput from '../form/FormInput.vue';
+import FormSelect from '../form/FormSelect.vue';
+import FormMultiSelect from '../form/FormMultiSelect.vue';
+import { getFormOptionsApi, savePersonApi } from '../../api/personForm';
+
 const emit = defineEmits(['cancel', 'person-created']);
 
-const formOptions=ref({
-    planets:[],
-    species:[],
-    films:[],
-    vehicles:[],
-    starships:[],
-    genders:[],
-});
-const isLoadingOptions=ref(true);
-
-const newPerson = ref({
+const initialPersonState = {
     name: '',
     height: null,
     mass: null,
@@ -26,221 +19,141 @@ const newPerson = ref({
     gender: '',
     planet_id: null,
     species_id: null,
-    film_ids: [],
-    vehicle_ids: [],
-    starship_ids: []
-});
-const isSaving = ref(false);
-const validationErrors=ref({});
-const successMessage = ref('');
+    film_ids: [] as number[],
+    vehicle_ids: [] as number[],
+    starship_ids: [] as number[],
+};
+const textInputFields = [
+    { id: 'name', label: 'Name', type: 'text', required: true },
+    { id: 'height', label: 'Height (см)', type: 'number' },
+    { id: 'mass', label: 'Mass (кг)', type: 'number' },
+    { id: 'hair_color', label: 'Hair Color', type: 'text' },
+    { id: 'skin_color', label: 'Skin Color', type: 'text' },
+    { id: 'eye_color', label: 'Eye Color', type: 'text' },
+    { id: 'birth_year', label: 'Birth Year', type: 'text' },
+];
+const singleSelectFields = [
+    { id: 'gender', label: 'Gender', modelKey: 'gender', optionsKey: 'genders',
+        placeholder: 'Оберіть стать', isObjectOptions: false},
+    { id: 'homeworld', label: 'Homeworld', modelKey: 'planet_id', optionsKey: 'planets',
+        placeholder: 'Оберіть планету', optionLabelKey: 'name'},
+    { id: 'species', label: 'Species', modelKey: 'species_id', optionsKey: 'species',
+        placeholder: 'Оберіть вид', optionLabelKey: 'name'},
+];
+const multiSelectFields = [
+    { id: 'films', label: 'Films', modelKey: 'film_ids', optionsKey: 'films', optionLabelKey: 'title'},
+    { id: 'vehicles', label: 'Vehicles', modelKey: 'vehicle_ids', optionsKey: 'vehicles', optionLabelKey: 'name'},
+    { id: 'starships', label: 'Starships', modelKey: 'starship_ids', optionsKey: 'starships', optionLabelKey: 'name'},
+];
 
-const fetchFormOptions=async ()=>{
-    isLoadingOptions.value=true;
+const formOptions = ref({
+    planets: [],
+    species: [],
+    films: [],
+    vehicles: [],
+    starships: [],
+    genders: [],
+});
+const newPerson = ref({...initialPersonState});
+const isLoadingOptions = ref(true);
+const isSaving = ref(false);
+const validationErrors = ref({});
+const generalError = ref('');
+
+const fetchFormOptions = async () => {
+    isLoadingOptions.value = true;
+
     try {
-        const response=await axios.get('/api/person-form-options');
-        formOptions.value=response.data;
-    }catch (error) {
+               formOptions.value = await getFormOptionsApi();
+    } catch (error) {
         console.error("Помилка завантаження опцій форми:", error);
-        //Can look messedge user
-    }finally {
-        isLoadingOptions.value=false;
+    } finally {
+        isLoadingOptions.value = false;
     }
 }
 
-onMounted(()=>{
+const savePerson = async () => {
+        isSaving.value = true;
+        validationErrors.value = {};
+        generalError.value = '';
+
+        try {
+            const createdPerson = await savePersonApi(newPerson.value);
+            emit('person-created', createdPerson);
+            newPerson.value = {...initialPersonState};
+        } catch (error) {
+            console.error("Помилка при збереженні персонажа:", error);
+            if (error.response && error.response.status === 422) {
+                validationErrors.value = error.response.data.errors;
+            } else {
+                let errorMessage = 'Виникла невідома помилка при збереженні. Спробуйте пізніше.';
+
+                if (error.response) {
+                    errorMessage = `Помилка сервера: ${error.response.status}. `
+                        + (error.response.data.message || 'Внутрішня помилка сервера.');
+                } else if (error.message) {
+                    errorMessage = `Помилка мережі: ${error.message}. Перевірте з'єднання.`;
+                }
+
+                generalError.value = errorMessage;
+            }
+        } finally {
+            isSaving.value = false;
+        }
+    };
+
+onMounted(() => {
     fetchFormOptions();
 });
-
-const generalError = ref('');
-const savePerson = async () => {
-    isSaving.value = true;
-    validationErrors.value = {};
-    generalError.value = '';
-    successMessage.value = '';
-    try {
-        // Виконання POST-запиту до маршруту Laravel store
-        await axios.post('/people', newPerson.value);
-        successMessage.value = 'Персонаж успішно створений!';
-        setTimeout(() => {
-            successMessage.value = '';
-        }, 3000);
-        // Успіх: повідомляємо батьківському компоненту
-        emit('person-created');
-
-        // Скидаємо форму
-        newPerson.value = {
-            name: '',
-            height: null,
-            mass: null,
-            hair_color: '',
-            skin_color: '',
-            eye_color: '',
-            birth_year: '',
-            gender: '',
-            planet_id: null,
-            species_id: null,
-            film_ids: [],
-            vehicle_ids: [],
-            starship_ids: []
-        };
-
-    } catch (error) {
-        console.error("Помилка при збереженні персонажа:", error);
-        if (error.response && error.response.status === 422) {
-            // Laravel повертає об'єкт з помилками у error.response.data.errors
-            validationErrors.value = error.response.data.errors;
-        } else {
-            let errorMessage = 'Виникла невідома помилка при збереженні. Спробуйте пізніше.';
-
-            // Якщо є відповідь сервера, використовуємо її статус або повідомлення
-            if (error.response) {
-                errorMessage = `Помилка сервера: ${error.response.status}. `
-                    + (error.response.data.message || 'Внутрішня помилка сервера.');
-            } else if (error.message) {
-                // Це можуть бути мережеві помилки (наприклад, сервер недоступний)
-                errorMessage = `Помилка мережі: ${error.message}. Перевірте з'єднання.`;
-            }
-
-            generalError.value = errorMessage;
-        }
-    } finally {
-        isSaving.value = false;
-    }
-};
 </script>
 
 <template>
     <form @submit.prevent="savePerson">
-        <div v-if="successMessage"
-             class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <strong class="font-bold">Успіх!</strong> {{ successMessage }}
-        </div>
-        <div v-else-if="generalError"
+        <div v-if="generalError"
              class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
             <strong class="font-bold">Помилка!</strong> {{ generalError }}
         </div>
         <div v-else-if="Object.keys(validationErrors).length"
              class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <strong class="font-bold">Упс! Виправте наступні помилки:</strong>
-            <ul class="mt-2 list-disc list-inside">
-                <li v-for="(value, key) in validationErrors" :key="key">
-                    {{ value[0] }}
-                </li>
-            </ul>
+            <strong class="font-bold">Упс!</strong>  Будь ласка, перевірте виділені поля форми.
         </div>
         <div class="max-h-96 overflow-y-auto pr-4 mb-4">
-            <div class="mb-4">
-                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                <input type="text" id="name" v-model="newPerson.name" required
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                <div v-if="validationErrors.name" class="text-sm text-red-600 mt-1">
-                    {{ validationErrors.name[0] }}
-                </div>
-            </div>
+            <template v-for="field in textInputFields" :key="field.id">
+                <FormInput
+                    :id="field.id"
+                    :label="field.label"
+                    :type="field.type"
+                    :required="field.required || false"
+                    v-model="newPerson[field.id]"
+                    :error="validationErrors[field.id]"
+                />
+            </template>
 
-            <div class="mb-4">
-                <label for="height" class="block text-sm font-medium text-gray-700">Height (см)</label>
-                <input type="number" id="height" v-model="newPerson.height"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
+            <template v-for="field in singleSelectFields" :key="field.id">
+                <FormSelect
+                    :id="field.id"
+                    :label="field.label"
+                    :disabled="isLoadingOptions"
+                    :placeholder="field.placeholder"
+                    v-model="newPerson[field.modelKey]"
+                    :options="formOptions[field.optionsKey]"
+                    :is-object-options="field.isObjectOptions"
+                    :option-label-key="field.optionLabelKey"
+                    :error="validationErrors[field.modelKey]"
+                />
+            </template>
 
-            <div class="mb-4">
-                <label for="mass" class="block text-sm font-medium text-gray-700">Mass (кг)</label>
-                <input type="number" id="mass" v-model="newPerson.mass"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-
-            <div class="mb-4">
-                <label for="hair_color" class="block text-sm font-medium text-gray-700">Hair Color</label>
-                <input type="text" id="hair_color" v-model="newPerson.hair_color"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-
-            <div class="mb-4">
-                <label for="skin_color" class="block text-sm font-medium text-gray-700">Skin Color</label>
-                <input type="text" id="skin_color" v-model="newPerson.skin_color"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-
-            <div class="mb-4">
-                <label for="eye_color" class="block text-sm font-medium text-gray-700">Eye Color</label>
-                <input type="text" id="eye_color" v-model="newPerson.eye_color"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-
-            <div class="mb-4">
-                <label for="birth_year" class="block text-sm font-medium text-gray-700">Birth Year</label>
-                <input type="text" id="birth_year" v-model="newPerson.birth_year"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-
-            <div class="mb-4">
-                <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
-                <select id="gender" v-model="newPerson.gender" :disabled="isLoadingOptions"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <option value="" disabled>Оберіть стать</option>
-                    <option v-for="genderValue in formOptions.genders" :key="genderValue" :value="genderValue">
-                        {{genderValue}}</option>
-                </select>
-            </div>
-
-            <div class="mb-4">
-                <label for="homeworld" class="block text-sm font-medium text-gray-700">Homeworld</label>
-                <select id="homeworld" v-model="newPerson.planet_id" :disabled="isLoadingOptions"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-
-                    <option value="" disabled>Оберіть планету</option>
-
-                    <option v-for="planet in formOptions.planets" :key="planet.id" :value="planet.id">
-                    {{planet.name}}</option>
-                </select>
-            </div>
-
-            <div class="mb-4">
-                <label for="species" class="block text-sm font-medium text-gray-700">Species</label>
-                <select id="species" v-model="newPerson.species_id" :disabled="isLoadingOptions"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-
-                    <option value="" disabled>Оберіть вид</option>
-
-                    <option v-for="species in formOptions.species" :key="species.id" :value="species.id">
-                        {{species.name}}</option>
-                </select>
-            </div>
-
-            <div class="mb-4">
-                <label for="films" class="block text-sm font-medium text-gray-700">Films</label>
-                <select id="films" v-model="newPerson.film_ids" multiple :disabled="isLoadingOptions">
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-
-                    <option v-for="film in formOptions.films" :key="film.id" :value="film.id">
-                        {{ film.title }}
-                    </option>
-                </select>
-            </div>
-
-            <div class="mb-4">
-                <label for="vehicles" class="block text-sm font-medium text-gray-700">Vehicles</label>
-                <select id="vehicles" v-model="newPerson.vehicle_ids" multiple :disabled="isLoadingOptions">
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-
-                    <option v-for="vehicle in formOptions.vehicles" :key="vehicle.id" :value="vehicle.id">
-                        {{ vehicle.name }}
-                    </option>
-                </select>
-            </div>
-
-            <div class="mb-4">
-                <label for="starships" class="block text-sm font-medium text-gray-700">Starships</label>
-                <select id="starships" v-model="newPerson.starship_ids" multiple :disabled="isLoadingOptions">
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-
-                    <option v-for="starship in formOptions.starships" :key="starship.id" :value="starship.id">
-                        {{ starship.name }}
-                    </option>
-                </select>
-            </div>
-
+            <template v-for="field in multiSelectFields" :key="field.id">
+                <FormMultiSelect
+                    :id="field.id"
+                    :label="field.label"
+                    :disabled="isLoadingOptions"
+                    v-model="newPerson[field.modelKey]"
+                    :options="formOptions[field.optionsKey]"
+                    :option-label-key="field.optionLabelKey"
+                    :error="validationErrors[field.modelKey]"
+                />
+            </template>
         </div>
 
         <div class="flex justify-end space-x-4">

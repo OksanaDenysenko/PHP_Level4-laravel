@@ -54,6 +54,8 @@ class PersonService
             if(!empty($relationshipsData)){
             $this->personRepository->syncRelationships($person, $relationshipsData);
             }
+
+            $person->load(['planet', 'species', 'films', 'vehicles', 'starships']);
         }
 
         return $person;

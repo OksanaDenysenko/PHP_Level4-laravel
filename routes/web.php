@@ -12,8 +12,5 @@ Route::prefix('people')
     ->controller(PersonController::class)
     ->group(function () {
     Route::get('/',  'index')->name('index');
-    Route::get('/create',  'create')->name('create');
-    Route::post('/',  'store')->name('store');
-    Route::put('/{person}',  'update')->name('update');
-    Route::delete('/{person}', 'destroy')->name('destroy');
+    Route::get('/{person}',  'show')->name('show');
 });

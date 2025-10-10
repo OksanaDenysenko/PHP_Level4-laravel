@@ -6,7 +6,6 @@ defineProps({
 
 const emit = defineEmits(['close']);
 
-// Логіка для закриття при кліку на фон
 const closeOnBackground = (event) => {
     if (event.target === event.currentTarget) {
         emit('close');
