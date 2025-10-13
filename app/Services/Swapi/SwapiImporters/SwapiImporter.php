@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\ImportSwapiService\SwapiImporters;
+namespace App\Services\Swapi\SwapiImporters;
 
 use App\Enums\SwapiDataType;
 use App\Repository\Repository;

@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\SwapiDataType;
 use App\Jobs\ImportSwapiPage;
-use App\Services\ImportSwapiService\SwapiApiService;
+use App\Services\Swapi\SwapiApiService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 use Symfony\Component\Console\Command\Command as CommandAlias;
