@@ -11,25 +11,26 @@ use Illuminate\Http\JsonResponse;
 
 class PersonController extends Controller
 {
-    public function __construct(protected PersonService $personService)
+    use LookupResponse;
+    public function __construct(protected PersonService $service)
     {
     }
 
-    /**
-     * The method is responsible for passing data for the form.
-     * @return JsonResponse
-     */
-    public function getFormOptions(): JsonResponse
-    {
-        return response()->json($this->personService->getDataForCreationForm());
-    }
+//    /**
+//     * The method is responsible for passing data for the form.
+//     * @return JsonResponse
+//     */
+//    public function getFormOptions(): JsonResponse
+//    {
+//        return response()->json($this->service->getDataForCreationForm());
+//    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StorePersonRequest $request): JsonResponse
     {
-        $person = $this->personService->createPerson($request->validated());
+        $person = $this->service->createPerson($request->validated());
 
         return response()->json($person, 201);
     }

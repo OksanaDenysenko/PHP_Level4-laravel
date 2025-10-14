@@ -9,12 +9,14 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class PersonService
 {
-    protected array $relationshipKeys = [
-        'film_ids'=>'films',
-        'vehicle_ids'=>'vehicles',
-        'starship_ids'=>'starships'];
+    use SwapiLookups;
 
-    public function __construct(protected PersonRepository $personRepository)
+    protected array $relationshipKeys = [
+        'film_ids' => 'films',
+        'vehicle_ids' => 'vehicles',
+        'starship_ids' => 'starships'];
+
+    public function __construct(protected PersonRepository $repository)
     {
     }
 
@@ -26,7 +28,7 @@ class PersonService
         $page = $request->get('page', 1);
         $perPage = $request->get('per_page', 10);
 
-        return $this->personRepository->getPaginatedPeopleWithRelations($page,$perPage);
+        return $this->repository->getPaginatedPeopleWithRelations($page, $perPage);
     }
 
     /**
@@ -37,11 +39,11 @@ class PersonService
     public function createPerson(array $data): ?Model
     {
         $personData = array_diff_key($data, $this->relationshipKeys);
-        $person = $this->personRepository->create($personData);
+        $person = $this->repository->create($personData);
 
         if ($person) {
             $rawRelationshipsData = array_intersect_key($data, $this->relationshipKeys);
-            $relationshipsData=[];
+            $relationshipsData = [];
 
             foreach ($rawRelationshipsData as $oldKey => $value) {
 
@@ -51,8 +53,8 @@ class PersonService
                 }
             }
 
-            if(!empty($relationshipsData)){
-            $this->personRepository->syncRelationships($person, $relationshipsData);
+            if (!empty($relationshipsData)) {
+                $this->repository->syncRelationships($person, $relationshipsData);
             }
 
             $person->load(['planet', 'species', 'films', 'vehicles', 'starships']);
@@ -61,29 +63,29 @@ class PersonService
         return $person;
     }
 
-    /**
-     * The method collects all the necessary data for the form
-     * @return array
-     */
-    public function getDataForCreationForm(): array
-    {
-        $lookups = [
-            'planets' => 'name',
-            'species' => 'name',
-            'films' => 'title',
-            'vehicles' => 'name',
-            'starships' => 'name',
-        ];
-        $options = [];
-
-        foreach ($lookups as $dataType => $nameColumn) {
-            $dataTypeObject = SwapiDataType::from($dataType);
-            $repository = $dataTypeObject->getRepository();
-            $options[$dataType] = $repository->getColumns(['id', $nameColumn]);
-        }
-
-        $options['genders'] = ['male', 'female', 'n/a', 'hermaphrodite'];
-
-        return $options;
-    }
+//    /**
+//     * The method collects all the necessary data for the form
+//     * @return array
+//     */
+//    public function getDataForCreationForm(): array
+//    {
+//        $lookups = [
+//            'planets' => 'name',
+//            'species' => 'name',
+//            'films' => 'title',
+//            'vehicles' => 'name',
+//            'starships' => 'name',
+//        ];
+//        $options = [];
+//
+//        foreach ($lookups as $dataType => $nameColumn) {
+//            $dataTypeObject = SwapiDataType::from($dataType);
+//            $repository = $dataTypeObject->getRepository();
+//            $options[$dataType] = $repository->getColumns(['id', $nameColumn]);
+//        }
+//
+//        $options['genders'] = ['male', 'female', 'n/a', 'hermaphrodite'];
+//
+//        return $options;
+//    }
 }

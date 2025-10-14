@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, {AxiosResponse} from 'axios';
 
 interface FormOptions {
     planets: Array<{ id: number, name: string }>;
@@ -25,11 +25,14 @@ interface PersonData {
     starship_ids: number[];
 }
 
+type LookupKey = keyof Omit<FormOptions, 'genders'>;
+
 /**
- * Function for loading form options
+ * Function fetches the lookup data (options) for the given key from the API
+ * @param key The lookup type ('planets', 'films', etc.)
  */
-export async function getFormOptionsApi(): Promise<FormOptions> {
-    const response: AxiosResponse<FormOptions> = await axios.get('/api/people/person-form-options');
+export async function fetchLookupApi<K extends LookupKey>(key: K): Promise<FormOptions[K]> {
+    const response: AxiosResponse<FormOptions[K]> = await axios.get(`/api/lookups/${key}`);
 
     return response.data;
 }

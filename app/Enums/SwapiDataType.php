@@ -10,7 +10,7 @@ use App\Repository\{FilmRepository,
     StarshipRepository,
     VehicleRepository
 };
-use App\Services\ImportSwapiService\SwapiImporters\{StarshipImporter,
+use App\Services\Swapi\SwapiImporters\{StarshipImporter,
     FilmImporter,
     PersonImporter,
     PlanetImporter,

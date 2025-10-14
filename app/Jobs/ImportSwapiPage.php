@@ -3,8 +3,8 @@
 namespace App\Jobs;
 
 use App\Enums\SwapiDataType;
-use App\Services\ImportSwapiService\ImportSwapiService;
-use App\Services\ImportSwapiService\SwapiApiService;
+use App\Services\Swapi\ImportSwapiService;
+use App\Services\Swapi\SwapiApiService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
