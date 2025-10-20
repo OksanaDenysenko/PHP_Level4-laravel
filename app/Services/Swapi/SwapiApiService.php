@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Swapi;
 
 use Illuminate\Support\Facades\Http;
 

@@ -2,8 +2,23 @@
 
 namespace App\Enums;
 
-use App\Repository\{Repository,FilmRepository,PersonRepository,PlanetRepository,SpeciesRepository,StarshipRepository,VehicleRepository};
-use App\Services\SwapiImporters\{SwapiImporter,VehicleImporter,StarshipImporter,SpeciesImporter,PlanetImporter,PersonImporter,FilmImporter};
+use App\Repository\{FilmRepository,
+    PersonRepository,
+    PlanetRepository,
+    Repository,
+    SpeciesRepository,
+    StarshipRepository,
+    VehicleRepository
+};
+use App\Services\Swapi\SwapiImporters\{StarshipImporter,
+    FilmImporter,
+    PersonImporter,
+    PlanetImporter,
+    SpeciesImporter,
+    SwapiImporter,
+    VehicleImporter
+};
+
 
 enum SwapiDataType: string
 {

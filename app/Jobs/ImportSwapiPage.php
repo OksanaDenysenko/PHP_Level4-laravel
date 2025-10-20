@@ -3,12 +3,12 @@
 namespace App\Jobs;
 
 use App\Enums\SwapiDataType;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use App\Services\SwapiApiService;
-use App\Services\ImportSwapiService;
+use App\Services\Swapi\ImportSwapiService;
+use App\Services\Swapi\SwapiApiService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class ImportSwapiPage implements ShouldQueue
 {
