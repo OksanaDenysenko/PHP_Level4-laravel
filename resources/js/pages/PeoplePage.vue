@@ -16,7 +16,7 @@
                 <h2 class="text-2xl font-semibold mb-4">Новий Персонаж</h2>
                 <PersonForm
                     @cancel="showForm = false"
-                    @person-created="handlePersonAdded"
+                    @person-saved="handlePersonSaved"
                 />
             </div>
         </Modal>
@@ -48,17 +48,19 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {ref, onMounted} from 'vue';
 import {getPeopleApi} from '../api/people';
 import PeopleTable from '../components/people/PeopleTable.vue';
 import Pagination from "../components/Pagination.vue";
 import PersonForm from "../components/people/PersonForm.vue";
 import Modal from "../components/Modal.vue";
+import { PersonData, PaginatedResponse, SavedEvent } from '../types/interfaces';
 
-const people = ref({});
+const people = ref<PaginatedResponse<PersonData>| {}>({});
 const isLoading = ref(true);
 const showForm = ref(false);
+const getCurrentPage = () => people.value.current_page || 1;
 const fetchPeople = async (page = 1) => {
     if (!page) return;
 
@@ -79,21 +81,23 @@ const fetchPeople = async (page = 1) => {
     }
 };
 
-const handlePersonAdded = (newPerson) => {
+const handlePersonSaved = (savedEvent:SavedEvent) => {
+    const { type } = savedEvent;
     showForm.value = false;
 
-    if (people.value.data) {
-        people.value.data.unshift(newPerson);
-    }
-
-    if (people.value.total) {
-        people.value.total += 1;
+    if (type === 'created') {
+        fetchPeople(1);
+    } else if (type === 'updated') {
+        fetchPeople(getCurrentPage());
+    } else {
+        fetchPeople(getCurrentPage());
     }
 }
 
 onMounted(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const initialPage = urlParams.get('page') || 1;
+    const pageFromUrl = urlParams.get('page');
+    const initialPage = pageFromUrl ? Number(pageFromUrl) : 1;
 
     fetchPeople(initialPage);
 });

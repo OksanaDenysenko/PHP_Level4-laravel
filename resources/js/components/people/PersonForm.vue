@@ -4,9 +4,16 @@ import {ref, onMounted} from 'vue';
 import FormInput from '../form/FormInput.vue';
 import FormSelect from '../form/FormSelect.vue';
 import FormMultiSelect from '../form/FormMultiSelect.vue';
-import {fetchLookupApi, savePersonApi} from '../../api/personForm';
+import {fetchLookupApi, savePersonApi, updatePersonApi} from '../../api/personService';
+import {FormOptions, PersonData, SavedEvent} from '../../types/interfaces';
 
-const emit = defineEmits(['cancel', 'person-created']);
+interface Props {
+    initialData?: PersonData;
+    personId?: number | null;
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits(['cancel', 'person-saved']);
 
 const initialPersonState = {
     name: '',
@@ -52,41 +59,37 @@ const multiSelectFields = [
     {id: 'starships', label: 'Starships', modelKey: 'starship_ids', optionsKey: 'starships', optionLabelKey: 'name'},
 ];
 
-const formOptions = ref({
+const lookupKeys = ['planets', 'species', 'films', 'vehicles', 'starships'] as const;
+
+const formOptions = ref<FormOptions>({
     planets: [], species: [], films: [], vehicles: [], starships: [],
     genders: ['male', 'female', 'n/a', 'hermaphrodite'],
 });
 
-const newPerson = ref({...initialPersonState});
+//const newPerson = ref({...initialPersonState});
+const formData = ref<PersonData>({
+    ...(props.initialData || initialPersonState)
+});
+const isEditing = ref(!!props.personId);
 const isLoadingOptions = ref(true);
 const isSaving = ref(false);
 const validationErrors = ref({});
 const generalError = ref('');
 
-const fetchFormOptions = async () => {
+const fetchFormOptions = () => {
     isLoadingOptions.value = true;
 
-    try {
-        const [planets, species, films, vehicles, starships] = await Promise.all([
-            fetchLookupApi('planets'),
-            fetchLookupApi('species'),
-            fetchLookupApi('films'),
-            fetchLookupApi('vehicles'),
-            fetchLookupApi('starships'),
-        ]);
-        formOptions.value = {
-            ...formOptions.value,
-            planets,
-            species,
-            films,
-            vehicles,
-            starships,
-        };
-    } catch (error) {
-        console.error("Помилка завантаження опцій форми:", error);
-    } finally {
+    const promises = lookupKeys.map(key => {
+        return fetchLookupApi(key).then(data => {
+            formOptions.value[key] = data as any;
+        }).catch(error => {
+            console.error(`Помилка завантаження довідника ${key}:`, error);
+        });
+    });
+
+    Promise.all(promises).finally(() => {
         isLoadingOptions.value = false;
-    }
+    });
 }
 
 const savePerson = async () => {
@@ -95,9 +98,18 @@ const savePerson = async () => {
     generalError.value = '';
 
     try {
-        const createdPerson = await savePersonApi(newPerson.value);
-        emit('person-created', createdPerson);
-        newPerson.value = {...initialPersonState};
+        let resultPerson: PersonData;
+        let eventType: 'created' | 'updated';
+
+        if (isEditing.value && props.personId) {
+            resultPerson = await updatePersonApi(props.personId, formData.value);
+            eventType = 'updated';
+        } else {
+            resultPerson = await savePersonApi(formData.value);
+            eventType = 'created';
+        }
+
+        emit('person-saved', {type: eventType, data: resultPerson});
     } catch (error) {
         console.error("Помилка при збереженні персонажа:", error);
         if (error.response && error.response.status === 422) {
@@ -141,7 +153,7 @@ onMounted(() => {
                     :label="field.label"
                     :type="field.type"
                     :required="field.required || false"
-                    v-model="newPerson[field.id]"
+                    v-model="formData[field.id]"
                     :error="validationErrors[field.id]"
                 />
             </template>
@@ -152,7 +164,7 @@ onMounted(() => {
                     :label="field.label"
                     :disabled="isLoadingOptions"
                     :placeholder="field.placeholder"
-                    v-model="newPerson[field.modelKey]"
+                    v-model="formData[field.modelKey]"
                     :options="formOptions[field.optionsKey]"
                     :is-object-options="field.isObjectOptions"
                     :option-label-key="field.optionLabelKey"
@@ -165,7 +177,7 @@ onMounted(() => {
                     :id="field.id"
                     :label="field.label"
                     :disabled="isLoadingOptions"
-                    v-model="newPerson[field.modelKey]"
+                    v-model="formData[field.modelKey]"
                     :options="formOptions[field.optionsKey]"
                     :option-label-key="field.optionLabelKey"
                     :error="validationErrors[field.modelKey]"

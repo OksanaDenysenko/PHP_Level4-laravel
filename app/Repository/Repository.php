@@ -51,7 +51,7 @@ abstract class Repository
      * @param array $columns
      * @return mixed
      */
-    public function getColumns(array $columns=['*']): mixed
+    public function getColumns(array $columns = ['*']): mixed
     {
         return $this->model::select($columns)->get();
     }
@@ -64,11 +64,34 @@ abstract class Repository
      */
     public function syncRelationships(Model $model, array $relationshipsData): void
     {
-        foreach ($relationshipsData as $relationName => $idsArray){
+        foreach ($relationshipsData as $relationName => $idsArray) {
 
-            if (!empty($idsArray)){
+            if (!empty($idsArray)) {
                 $model->{$relationName}()->sync($idsArray);
             }
         }
+    }
+
+    /**
+     * The method receives filtered data
+     * @param array $filters
+     * @param array $nameColumns
+     * @return array
+     */
+    public function getByFilter(array $filters, array $nameColumns): array
+    {
+        $query = $this->model::query();
+
+        foreach ($filters as $key => $value) {
+
+            if (is_null($value) || $value === '') {
+
+                continue;
+            }
+
+            $query->whereLike($key, $value);
+        }
+
+        return $query->get($nameColumns)->toArray();
     }
 }

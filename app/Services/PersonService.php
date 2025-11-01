@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Enums\SwapiDataType;
+use App\DTO\People\CreatePersonDTO;
 use App\Repository\PersonRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -33,11 +33,12 @@ class PersonService
 
     /**
      * The method creates a new character with all its relations
-     * @param array $data
+     * @param CreatePersonDTO $dto
      * @return Model|null
      */
-    public function createPerson(array $data): ?Model
+    public function createPerson(CreatePersonDTO $dto): ?Model
     {
+        $data=$dto->toArray();
         $personData = array_diff_key($data, $this->relationshipKeys);
         $person = $this->repository->create($personData);
 
@@ -62,30 +63,4 @@ class PersonService
 
         return $person;
     }
-
-//    /**
-//     * The method collects all the necessary data for the form
-//     * @return array
-//     */
-//    public function getDataForCreationForm(): array
-//    {
-//        $lookups = [
-//            'planets' => 'name',
-//            'species' => 'name',
-//            'films' => 'title',
-//            'vehicles' => 'name',
-//            'starships' => 'name',
-//        ];
-//        $options = [];
-//
-//        foreach ($lookups as $dataType => $nameColumn) {
-//            $dataTypeObject = SwapiDataType::from($dataType);
-//            $repository = $dataTypeObject->getRepository();
-//            $options[$dataType] = $repository->getColumns(['id', $nameColumn]);
-//        }
-//
-//        $options['genders'] = ['male', 'female', 'n/a', 'hermaphrodite'];
-//
-//        return $options;
-//    }
 }

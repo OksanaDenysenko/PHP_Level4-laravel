@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DTO\People\CreatePersonDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePersonRequest;
 use App\Http\Requests\UpdatePersonRequest;
@@ -16,21 +17,13 @@ class PersonController extends Controller
     {
     }
 
-//    /**
-//     * The method is responsible for passing data for the form.
-//     * @return JsonResponse
-//     */
-//    public function getFormOptions(): JsonResponse
-//    {
-//        return response()->json($this->service->getDataForCreationForm());
-//    }
-
     /**
      * Store a newly created resource in storage.
      */
     public function store(StorePersonRequest $request): JsonResponse
     {
-        $person = $this->service->createPerson($request->validated());
+        $dto = CreatePersonDTO::fromArray($request->validated());
+        $person = $this->service->createPerson($dto);
 
         return response()->json($person, 201);
     }

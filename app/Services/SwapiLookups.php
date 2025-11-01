@@ -7,13 +7,14 @@ use App\Repository\FilmRepository;
 trait SwapiLookups
 {
     /**
-     * The method fetches lookups
+     * The method filters records based on the provided criteria
+     * @param array $filters
      * @return array
      */
-    public function fetchSwapiLookups(): array
+    public function filterSwapiLookups(array $filters=[]): array
     {
         $nameColumn = ($this->repository instanceof FilmRepository) ? 'title' : 'name';
 
-        return $this->repository->getColumns(['id', $nameColumn])->toArray();
+        return $this->repository->getByFilter($filters, ['id',$nameColumn]);
     }
 }

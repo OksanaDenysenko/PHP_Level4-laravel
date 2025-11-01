@@ -17,18 +17,23 @@ Route::prefix('people')
     ->name('people.')
     ->controller(PersonController::class)
     ->group(function () {
-       // Route::get('/person-form-options', 'getFormOptions')->name('getFormOptions');
         Route::post('/',  'store')->name('store');
         Route::put('/{person}',  'update')->name('update');
         Route::delete('/{person}', 'destroy')->name('destroy');
     });
 
-Route::prefix('lookups')
-    ->name('lookups.')
-    ->group(function () {
-        Route::get('/planets', [PlanetController::class, 'getLookups'])->name('planets');
-        Route::get('/films', [FilmController::class, 'getLookups'])->name('films');
-        Route::get('/species', [SpeciesController::class, 'getLookups'])->name('species');
-        Route::get('/starships', [StarshipController::class, 'getLookups'])->name('starships');
-        Route::get('/vehicles', [VehicleController::class, 'getLookups'])->name('vehicles');
-    });
+//Route::prefix('lookups')
+//    ->name('lookups.')
+//    ->group(function () {
+//        Route::get('/planets', [PlanetController::class, 'getLookups'])->name('planets');
+//        Route::get('/films', [FilmController::class, 'getLookups'])->name('films');
+//        Route::get('/species', [SpeciesController::class, 'getLookups'])->name('species');
+//        Route::get('/starships', [StarshipController::class, 'getLookups'])->name('starships');
+//        Route::get('/vehicles', [VehicleController::class, 'getLookups'])->name('vehicles');
+//    });
+
+Route::get('/planets', [PlanetController::class, 'getLookups'])->name('planets.lookups');
+Route::get('/films', [FilmController::class, 'getLookups'])->name('films.lookups');
+Route::get('/species', [SpeciesController::class, 'getLookups'])->name('species.lookups');
+Route::get('/starships', [StarshipController::class, 'getLookups'])->name('starships.lookups');
+Route::get('/vehicles', [VehicleController::class, 'getLookups'])->name('vehicles.lookups');
