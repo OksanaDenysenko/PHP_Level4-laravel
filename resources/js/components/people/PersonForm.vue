@@ -4,7 +4,8 @@ import {ref, onMounted} from 'vue';
 import FormInput from '../form/FormInput.vue';
 import FormSelect from '../form/FormSelect.vue';
 import FormMultiSelect from '../form/FormMultiSelect.vue';
-import {fetchLookupApi, savePersonApi, updatePersonApi} from '../../api/personService';
+import {savePersonApi, updatePersonApi} from '../../api/person.service';
+import {fetchLookupApi} from '../../api/lookup.service';
 import {FormOptions, PersonData, SavedEvent} from '../../types/interfaces';
 
 interface Props {
