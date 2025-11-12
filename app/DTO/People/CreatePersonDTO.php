@@ -54,4 +54,14 @@ readonly class CreatePersonDTO implements Arrayable
     {
         return (array) $this;
     }
+
+    /**
+     * The method only receives data for person creation
+     * @param $relationshipKeys
+     * @return array
+     */
+    public function getPersonData($relationshipKeys): array
+    {
+        return array_diff_key($this->toArray(), array_flip($relationshipKeys));
+    }
 }
