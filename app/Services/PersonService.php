@@ -6,15 +6,13 @@ use App\DTO\People\CreatePersonDTO;
 use App\Repository\PersonRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class PersonService
 {
     use SwapiLookups;
 
-    protected array $relationshipKeys = [
-        'film_ids' => 'films',
-        'vehicle_ids' => 'vehicles',
-        'starship_ids' => 'starships'];
+    protected array $relationships = ['films', 'vehicles', 'starships'];
 
     public function __construct(protected PersonRepository $repository)
     {
@@ -39,21 +37,14 @@ class PersonService
     public function createPerson(CreatePersonDTO $dto): ?Model
     {
         $data=$dto->toArray();
-        $personData = array_diff_key($data, $this->relationshipKeys);
+        $personData = array_diff_key($data, $this->relationships);
+        Log::info("this is relationship:",$personData);
         $person = $this->repository->create($personData);
 
         if ($person) {
-            $rawRelationshipsData = array_intersect_key($data, $this->relationshipKeys);
-            $relationshipsData = [];
-
-            foreach ($rawRelationshipsData as $oldKey => $value) {
-
-                if (isset($this->relationshipKeys[$oldKey])) {
-                    $newKey = $this->relationshipKeys[$oldKey];
-                    $relationshipsData[$newKey] = $value;
-                }
-            }
-
+            Log::info('yes');
+            $relationshipsData = array_intersect_key($data, $this->relationships);
+            Log::info("this is relationship:",$relationshipsData);
             if (!empty($relationshipsData)) {
                 $this->repository->syncRelationships($person, $relationshipsData);
             }

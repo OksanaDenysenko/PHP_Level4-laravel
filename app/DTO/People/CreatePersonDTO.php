@@ -17,9 +17,9 @@ readonly class CreatePersonDTO implements Arrayable
         public string $gender,
         public ?int   $planet_id,
         public ?int   $species_id,
-        public array  $film_ids,
-        public array  $vehicle_ids,
-        public array  $starship_ids,
+        public array  $films,
+        public array  $vehicles,
+        public array  $starships,
     ) {}
 
     /**
@@ -40,9 +40,9 @@ readonly class CreatePersonDTO implements Arrayable
             gender: $data['gender'],
             planet_id: $data['planet_id'],
             species_id: $data['species_id'],
-            film_ids: $data['film_ids'] ?? [],
-            vehicle_ids: $data['vehicle_ids'] ?? [],
-            starship_ids: $data['starship_ids'] ?? [],
+            films: $data['film_ids'] ?? [],
+            vehicles: $data['vehicle_ids'] ?? [],
+            starships: $data['starship_ids'] ?? [],
         );
     }
 
