@@ -19,7 +19,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="person in people" :key="person.name" class="border-b border-gray-400 hover:bg-gray-50">
+            <tr v-for="person in people" :key="person.id" class="border-b border-gray-400 hover:bg-gray-50">
                 <td class="px-2 py-4 text-sm text-gray-900 border-r border-gray-400 break-words">{{ person.name }}</td>
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">{{ person.height }}</td>
                 <td class="px-2 py-4 text-sm text-gray-500 border-r border-gray-400 break-words">{{ person.mass }}</td>

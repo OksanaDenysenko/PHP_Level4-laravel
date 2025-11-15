@@ -1,6 +1,25 @@
 <template>
     <div class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-4">Список персонажів Star Wars</h1>
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold mb-4">Список персонажів Star Wars</h1>
+
+            <button
+                @click="showForm = true"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition duration-150 ease-in-out"
+            >
+                Додати Персонажа
+            </button>
+        </div>
+
+        <Modal :show="showForm" @close="showForm = false">
+            <div class="p-6 bg-white rounded-lg">
+                <h2 class="text-2xl font-semibold mb-4">Новий Персонаж</h2>
+                <PersonForm
+                    @cancel="showForm = false"
+                    @person-saved="handlePersonSaved"
+                />
+            </div>
+        </Modal>
 
         <div v-if="isLoading" class="text-center py-8">
             <p>Завантаження даних...</p>
@@ -29,14 +48,19 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {ref, onMounted} from 'vue';
 import {getPeopleApi} from '../api/people';
 import PeopleTable from '../components/people/PeopleTable.vue';
 import Pagination from "../components/Pagination.vue";
+import PersonForm from "../components/people/PersonForm.vue";
+import Modal from "../components/Modal.vue";
+import { PersonData, PaginatedResponse, SavedEvent } from '../types/interfaces';
 
-const people = ref({});
+const people = ref<PaginatedResponse<PersonData>| {}>({});
 const isLoading = ref(true);
+const showForm = ref(false);
+const getCurrentPage = () => people.value.current_page || 1;
 const fetchPeople = async (page = 1) => {
     if (!page) return;
 
@@ -57,9 +81,23 @@ const fetchPeople = async (page = 1) => {
     }
 };
 
+const handlePersonSaved = (savedEvent:SavedEvent) => {
+    const { type } = savedEvent;
+    showForm.value = false;
+
+    if (type === 'created') {
+        fetchPeople(1);
+    } else if (type === 'updated') {
+        fetchPeople(getCurrentPage());
+    } else {
+        fetchPeople(getCurrentPage());
+    }
+}
+
 onMounted(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const initialPage = urlParams.get('page') || 1;
+    const pageFromUrl = urlParams.get('page');
+    const initialPage = pageFromUrl ? Number(pageFromUrl) : 1;
 
     fetchPeople(initialPage);
 });
