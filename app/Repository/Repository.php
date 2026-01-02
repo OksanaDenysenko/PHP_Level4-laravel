@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Models\Person;
 use Illuminate\Database\Eloquent\Model;
 
 abstract class Repository
@@ -19,6 +20,17 @@ abstract class Repository
     public function create(array $data): ?Model
     {
         return $this->model::create($data);
+    }
+
+    /**
+     * The method updates an existing record in the database.
+     * @param Person $person
+     * @param array $data The data to update the model with.
+     * @return bool
+     */
+    public function update(Person $person, array $data): bool
+    {
+        return $person->update($data);
     }
 
     /**

@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\DTO\People\CreatePersonDTO;
+use App\DTO\People\UpdatePersonDTO;
+use App\Models\Person;
 use App\Repository\PersonRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -47,6 +49,27 @@ class PersonService
 
             $person->load(['planet', 'species', 'films', 'vehicles', 'starships']);
         }
+
+        return $person;
+    }
+
+    /**
+     * The method updates an existing character and syncs its relations.
+     * @param Person $person
+     * @param UpdatePersonDTO $dto
+     * @return Person
+     */
+    public function updatePerson(Person $person, UpdatePersonDTO $dto): Person
+    {
+        $personData = $dto->getPersonData($this->relationshipKeys);
+        $this->repository->update($person, $personData);
+        $relationshipsData = array_intersect_key($dto->toArray(), array_flip($this->relationshipKeys));
+
+        if (!empty($relationshipsData)) {
+            $this->repository->syncRelationships($person, $relationshipsData);
+        }
+
+        $person->load(['planet', 'species', 'films', 'vehicles', 'starships']);
 
         return $person;
     }

@@ -12,7 +12,7 @@ export interface FormOptions {
     genders: string[];
 }
 
-export interface PersonData {
+export interface PersonCore {
     name: string;
     height: number | null;
     mass: number | null;
@@ -28,9 +28,18 @@ export interface PersonData {
     starship_ids: number[];
 }
 
+export interface PersonFull extends PersonCore{
+    id: number;
+    planet?: LookupItem;
+    species?: LookupItem;
+    films?: LookupItem[];
+    vehicles?: LookupItem[];
+    starships?: LookupItem[];
+}
+
 export interface SavedEvent {
     type: 'created' | 'updated';
-    data: PersonData;
+    data: PersonFull;
 }
 
 export interface PaginationLink {
