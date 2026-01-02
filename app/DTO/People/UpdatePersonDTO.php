@@ -62,7 +62,6 @@ readonly class UpdatePersonDTO implements Arrayable
      */
     public function getPersonData(array $relationshipKeys): array
     {
-        // Видаляємо ключі зв'язків, щоб отримати лише дані для моделі Person (стовпці таблиці).
         return array_diff_key($this->toArray(), array_flip($relationshipKeys));
     }
 }
