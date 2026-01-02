@@ -1,22 +1,23 @@
 <script setup lang="ts">
 
-import {ref, onMounted} from 'vue';
+import {ref, watch, onMounted} from 'vue';
 import FormInput from '../form/FormInput.vue';
 import FormSelect from '../form/FormSelect.vue';
 import FormMultiSelect from '../form/FormMultiSelect.vue';
 import {savePersonApi, updatePersonApi} from '../../api/person.service';
 import {fetchLookupApi} from '../../api/lookup.service';
-import {FormOptions, PersonData, SavedEvent} from '../../types/interfaces';
+import {FormOptions, PersonCore, PersonFull, SavedEvent} from '../../types/interfaces';
 
-interface Props {
-    initialData?: PersonData;
-    personId?: number | null;
-}
+const props = defineProps<{
+    initialData?: PersonFull | null;
+}>();
 
-const props = defineProps<Props>();
-const emit = defineEmits(['cancel', 'person-saved']);
+const emit = defineEmits<{
+    (e: 'cancel'): void;
+    (e: 'person-saved', event: SavedEvent): void;
+}>();
 
-const initialPersonState = {
+const initialPersonState: PersonCore = {
     name: '',
     height: null,
     mass: null,
@@ -67,16 +68,60 @@ const formOptions = ref<FormOptions>({
     genders: ['male', 'female', 'n/a', 'hermaphrodite'],
 });
 
-//const newPerson = ref({...initialPersonState});
-const formData = ref<PersonData>({
+const formData = ref<PersonCore>({
     ...(props.initialData || initialPersonState)
 });
-const isEditing = ref(!!props.personId);
+
+const isEditing = ref(false);
+const personId=ref<number|null>(null);
 const isLoadingOptions = ref(true);
 const isSaving = ref(false);
 const validationErrors = ref({});
 const generalError = ref('');
 
+const initializeFormState = () => {
+    generalError.value = '';
+    validationErrors.value = {};
+
+    if (props.initialData) {
+        isEditing.value = true;
+        personId.value = props.initialData.id;
+
+        const extractIds = (items: any[] | undefined, fallbackIds: number[] | undefined) => {
+            if (items && items.length > 0 && typeof items[0] === 'object') {
+                return items.map(item => item.id);
+            }
+            return fallbackIds || [];
+        };
+
+        formData.value = {
+            name: props.initialData.name || '',
+            height: props.initialData.height,
+            mass: props.initialData.mass,
+            hair_color: props.initialData.hair_color || '',
+            skin_color: props.initialData.skin_color || '',
+            eye_color: props.initialData.eye_color || '',
+            birth_year: props.initialData.birth_year || '',
+            gender: props.initialData.gender || '',
+            planet_id: props.initialData.planet?.id || props.initialData.planet_id || null,
+            species_id: props.initialData.species?.id || props.initialData.species_id || null,
+            film_ids: extractIds(props.initialData.films, props.initialData.film_ids),
+            vehicle_ids: extractIds(props.initialData.vehicles, props.initialData.vehicle_ids),
+            starship_ids: extractIds(props.initialData.starships, props.initialData.starship_ids),
+        };
+    } else {
+        isEditing.value = false;
+        personId.value = null;
+        formData.value = { ...initialPersonState };
+    }
+}
+
+watch(() => props.initialData, initializeFormState);
+
+onMounted(() => {
+    fetchFormOptions();
+    initializeFormState();
+});
 const fetchFormOptions = () => {
     isLoadingOptions.value = true;
 
@@ -98,15 +143,19 @@ const savePerson = async () => {
     validationErrors.value = {};
     generalError.value = '';
 
+    const payload = {
+        ...formData.value,
+    } as PersonCore;
+
     try {
-        let resultPerson: PersonData;
+        let resultPerson: PersonFull;
         let eventType: 'created' | 'updated';
 
-        if (isEditing.value && props.personId) {
-            resultPerson = await updatePersonApi(props.personId, formData.value);
+        if (isEditing.value && personId.value) {
+            resultPerson = await updatePersonApi(personId.value, payload);
             eventType = 'updated';
         } else {
-            resultPerson = await savePersonApi(formData.value);
+            resultPerson = await savePersonApi(payload);
             eventType = 'created';
         }
 
@@ -132,9 +181,6 @@ const savePerson = async () => {
     }
 };
 
-onMounted(() => {
-    fetchFormOptions();
-});
 </script>
 
 <template>
@@ -195,7 +241,7 @@ onMounted(() => {
             <button type="submit"
                     :disabled="isSaving"
                     class="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition duration-150 disabled:opacity-50">
-                {{ isSaving ? 'Зберігаю...' : 'Зберегти Персонажа' }}
+                {{ isSaving ? 'Зберігаю...' :isEditing? 'Оновити Персонажа': 'Створити Персонажа' }}
             </button>
         </div>
     </form>

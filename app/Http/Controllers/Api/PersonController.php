@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\DTO\People\CreatePersonDTO;
+use App\DTO\People\UpdatePersonDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePersonRequest;
 use App\Http\Requests\UpdatePersonRequest;
@@ -31,9 +32,12 @@ class PersonController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePersonRequest $request, Person $person)
+    public function update(UpdatePersonRequest $request, Person $person): JsonResponse
     {
-        //
+        $dto = UpdatePersonDTO::fromArray($request->validated());
+        $updatedPerson = $this->service->updatePerson($person, $dto);
+
+        return response()->json($updatedPerson, 200);
     }
 
     /**

@@ -11,11 +11,14 @@
             </button>
         </div>
 
-        <Modal :show="showForm" @close="showForm = false">
+        <Modal :show="showForm" @close="showForm = false; personToEdit=null">
             <div class="p-6 bg-white rounded-lg">
-                <h2 class="text-2xl font-semibold mb-4">Новий Персонаж</h2>
+                <h2 class="text-2xl font-semibold mb-4">
+                    {{personToEdit?'Редагувати Персонажа':'Новий Персонаж'}}
+                </h2>
                 <PersonForm
-                    @cancel="showForm = false"
+                    :initialData="personToEdit"
+                    @cancel="showForm = false; personToEdit=null"
                     @person-saved="handlePersonSaved"
                 />
             </div>
@@ -38,7 +41,8 @@
         </div>
 
         <div v-else-if="people.data && people.data.length > 0">
-            <PeopleTable :people="people.data"/>
+            <PeopleTable :people="people.data"
+            @edit-person="startEditing"/>
             <Pagination :pagination="people" @page-changed="fetchPeople"/>
         </div>
 
@@ -55,12 +59,15 @@ import PeopleTable from '../components/people/PeopleTable.vue';
 import Pagination from "../components/Pagination.vue";
 import PersonForm from "../components/people/PersonForm.vue";
 import Modal from "../components/Modal.vue";
-import { PersonData, PaginatedResponse, SavedEvent } from '../types/interfaces';
+import { PersonFull, PaginatedResponse, SavedEvent } from '../types/interfaces';
 
-const people = ref<PaginatedResponse<PersonData>| {}>({});
+const people = ref<PaginatedResponse<PersonFull>| {}>({});
 const isLoading = ref(true);
 const showForm = ref(false);
-const getCurrentPage = () => people.value.current_page || 1;
+const personToEdit = ref<PersonFull | null>(null);
+const getCurrentPage = () => {
+    return (people.value as PaginatedResponse<PersonFull>).current_page || 1;
+};
 const fetchPeople = async (page = 1) => {
     if (!page) return;
 
@@ -81,9 +88,14 @@ const fetchPeople = async (page = 1) => {
     }
 };
 
+const startEditing = (person: PersonFull) => {
+    personToEdit.value = person;
+    showForm.value = true;
+}
 const handlePersonSaved = (savedEvent:SavedEvent) => {
     const { type } = savedEvent;
     showForm.value = false;
+    personToEdit.value=null;
 
     if (type === 'created') {
         fetchPeople(1);

@@ -1,12 +1,12 @@
 import axios, {AxiosResponse} from 'axios';
-import {PersonData} from "../types/interfaces";
+import {PersonCore, PersonFull} from "../types/interfaces";
 
 /**
  * Function to save a new character
  * @param data
  */
-export async function savePersonApi(data: PersonData): Promise<any> {
-    const response: AxiosResponse<PersonData> = await axios.post('/api/people', data);
+export async function savePersonApi(data: PersonCore): Promise<any> {
+    const response: AxiosResponse<PersonFull> = await axios.post('/api/people', data);
 
     return response.data;
 }
@@ -16,8 +16,8 @@ export async function savePersonApi(data: PersonData): Promise<any> {
  * @param id The ID of the person to update
  * @param data The updated data
  */
-export async function updatePersonApi(id: number, data: PersonData): Promise<PersonData> {
-    const response: AxiosResponse<PersonData> = await axios.put(`/api/people/${id}`, data);
+export async function updatePersonApi(id: number, data: PersonCore): Promise<PersonFull> {
+    const response: AxiosResponse<PersonFull> = await axios.put(`/api/people/${id}`, data);
 
     return response.data;
 }
